@@ -9,6 +9,8 @@ import pymongo.errors as perr
 import ujson
 import jsonschema
 
+from analysisbucket.server import utils
+
 
 loop = tornado.ioloop.IOLoop.instance()
 
@@ -82,3 +84,25 @@ class AnalysisHeaderHandler(DefaultHandler):
             raise tornado.web.HTTPError(500, reason='No results found for query')
         else:
             utils.return2client(self, docs)
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def post(self):
+        database = self.settings['db']
+        data = ujson.loads(self.request.body.decode("utf-8"))
+        jsonschema.validate(data, utils.schemas['analysis_header'])
+        try:
+            result = database.analysis_header.insert(data)
+        except perr.PyMongoError:
+            raise tornado.web.HTTPError(500,
+                                        status='Unable to insert the document')
+
+        database.analysis_header.create_index([('uid', pymongo.ASCENDING)],
+                                       unique=True, background=True)
+        database.analysis_header.create_index([('time', pymongo.ASCENDING)],
+                                        unique=False)
+
+        if not result:
+            raise tornado.web.HTTPError(500)
+        else:
+            utils.return2client(self, data)
