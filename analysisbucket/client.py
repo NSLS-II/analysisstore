@@ -6,6 +6,7 @@ import os
 import os.path
 import pathlib
 import shutil
+from time import time as ttime
 
 BASE_PATH = os.path.expanduser('~/.cache/ab')
 
@@ -34,7 +35,11 @@ class AnalysisClient:
         a_head : doc
            Document (dict) representing the header
         """
-        pass
+        # TODO talk to database
+        return {'date': ttime(),
+                'uid': str(uuid4()),
+                'name': name,
+                **kwargs}
 
     def add_result(self, head, **data):
         """Add results to a header
@@ -63,7 +68,8 @@ class AnalysisClient:
 
         desc = self.add_result_descriptor(head, data_keys, auto_gen=True)
 
-        return {'data': data_dict, 'descriptor': desc}
+        res = self.add_result_document(desc, data_dict)
+        return res
 
     def add_result_document(self, descriptor, data_doc):
         """Low-level add result
@@ -85,14 +91,19 @@ class AnalysisClient:
             The actual document inserted into the database
 
         """
-        pass
+        # TODO talk to database
+        return {'data': data_doc,
+                'descriptor': descriptor,
+                'uid': str(uuid4())}
 
     def add_result_descriptor(self, head, data_keys, **kwargs):
         """Create an result descriptor
 
         """
+        # TODO talk to database
         return {'header': head,
                 'data_keys': data_keys,
+                'uid': str(uuid4()),
                 **kwargs}
 
 
