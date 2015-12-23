@@ -11,6 +11,11 @@ BASE_PATH = os.path.expanduser('~/.cache/ab')
 
 
 class AnalysisClient:
+    def __init__(self, *, norm=None):
+        if norm is None:
+            norm = normalize
+        self._normalize = norm
+
     def create_header(self, name, **kwargs):
         """Create an analysis Header
 
@@ -52,7 +57,7 @@ class AnalysisClient:
         data_dict = {}
         data_keys = {}
         for k, v in data.items():
-            nd, kd = normalize(v)
+            nd, kd = self._normalize(v)
             data_dict[k] = nd
             data_keys[k] = kd
 
