@@ -12,6 +12,20 @@ from document import Document
 BASE_PATH = os.path.expanduser('~/.cache/ab')
 
 
+class HeaderDocument(Document):
+    __slots__ = ('_ac')
+
+    def __init__(self, bound_ac, name, *args, **kwargs):
+        object.__setattr__(self, '_ac', bound_ac)
+        super().__init__(name, *args, **kwargs)
+
+    def Document(self):
+        return Document(*self.to_name_dict_pair())
+
+    def add_result(self, **data):
+        return self._ac.add_result(self, **data)
+
+
 class AnalysisClient:
     def __init__(self, *, norm=None):
         if norm is None:
@@ -37,11 +51,11 @@ class AnalysisClient:
            Document (dict) representing the header
         """
         # TODO talk to database
-        return Document('result_header',
-                        {'date': ttime(),
-                         'uid': str(uuid4()),
-                         'name': name,
-                         **kwargs})
+        return HeaderDocument(self, 'result_header',
+                              {'date': ttime(),
+                               'uid': str(uuid4()),
+                               'name': name,
+                               **kwargs})
 
     def add_result(self, head, **data):
         """Add results to a header
