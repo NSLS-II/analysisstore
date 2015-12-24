@@ -52,7 +52,7 @@ class AnalysisClient:
         """
         # TODO talk to database
         return HeaderDocument(self, 'result_header',
-                              {'date': ttime(),
+                              {'time': ttime(),
                                'uid': str(uuid4()),
                                'name': name,
                                **kwargs})
