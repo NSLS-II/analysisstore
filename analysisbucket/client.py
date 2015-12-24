@@ -210,3 +210,24 @@ def open_file(data, key_desc):
     klass, ext = key_desc['external'].split(':')
     assert klass == 'FILEPATH'
     return handler_map[ext](data)
+
+
+def fill_result(res):
+    data = res['data']
+    data_keys = res['descriptor']['data_keys']
+    out = {}
+    for k in data.keys():
+        dk = data_keys[k]
+        d = data[k]
+        if 'external' in dk:
+            d = open_file(d, dk)
+        out[k] = d
+
+    if isinstance(res, Document):
+        _name, r_dict = res.to_name_dict_pair()
+        r_dict['data'] = out
+        return Document(_name, r_dict)
+    else:
+        r_dict = dict(res)
+        r_dict['data'] = out
+        return r_dict
