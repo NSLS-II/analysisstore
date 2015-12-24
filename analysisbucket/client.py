@@ -167,6 +167,8 @@ def _norm_pd_df(data):
 
 @normalize.register(pd.Series)
 def _norm_pd_S(data):
+    # TODO this does not properly round trip, comes back as a
+    # DataFrame, not a Series.  Via FS this would be easy to do.
     return normalize(pd.DataFrame(data))
 
 
