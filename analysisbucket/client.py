@@ -163,3 +163,32 @@ def _norm_path(data):
     shutil.copy2(data.as_posix(), fname)
     return fname, {'shape': (),
                    'dtype': 'path'}
+
+
+def open_file(data, key_desc):
+    """A quick and dirty FS stand-in
+
+    This handles the case where:
+      - exactly one datum per file
+      - no parameters other than the handler and filename
+        are required
+
+    Parameters
+    ----------
+    data : str
+        The data to open as a file
+
+    key_desc : dict
+        The data_key entry for this value
+
+    Returns
+    -------
+    data : object
+        However the file should be interpreted
+    """
+    handler_map = {'csv': lambda fname: pd.read_csv(fname, index_col=0),
+                   'npy': np.load}
+
+    klass, ext = key_desc['external'].split(':')
+    assert klass == 'FILEPATH'
+    return handler_map[ext](data)
