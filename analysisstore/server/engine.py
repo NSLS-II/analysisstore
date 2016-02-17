@@ -67,7 +67,6 @@ class AnalysisHeaderHandler(DefaultHandler):
     """
 
     @tornado.web.asynchronous
-    @gen.coroutine
     def get(self):
         database = self.settings['db']
         query = utils.unpack_params(self)
@@ -86,7 +85,6 @@ class AnalysisHeaderHandler(DefaultHandler):
             utils.return2client(self, docs)
 
     @tornado.web.asynchronous
-    @gen.coroutine
     def post(self):
         database = self.settings['db']
         data = ujson.loads(self.request.body.decode("utf-8"))

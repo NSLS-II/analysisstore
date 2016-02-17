@@ -58,5 +58,5 @@ def load_configuration(name, prefix, fields):
                        "file or environmental variable.".format(missing))
     return config
 
-connection_config = load_configuration('analysisbucket', 'AB',
+connection_config = load_configuration('analysisstore', 'AB',
                                        ['host', 'port', 'timezone'])
