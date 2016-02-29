@@ -1,4 +1,3 @@
-
 {
     "properties": {
         "run_start": {
@@ -13,10 +12,10 @@
             "type": "number",
             "description": "The time the run ended. Unix epoch"
         },
-        "exit_status": {
+        "analysis_status": {
             "type": "string",
-            "enum": ["success", "abort", "fail"],
-            "description": "State of the run when it ended"
+            "enum": ["final", "raw"],
+            "description": "State of the analysis when it ended"
         },
         "uid": {
             "type": "string",
@@ -31,5 +30,4 @@
     ],
     "type": "object",
     "description": "Document for the end of a run indicating the success/fail state of the run and the end time"
-
 }

@@ -1,7 +1,10 @@
 """ Startup script for the server."""
-#TODO: Replace this with a better startup mechanism
+
+# TODO: Replace this with a better startup mechanism
+
 import tornado.web
-from analysisstore.server.engine import (AnalysisHeaderHandler, loop, db_connect)
+from analysisstore.server.engine import (AnalysisHeaderHandler, 
+                                         loop, db_connect)
 from metadataservice.server.conf import connection_config
 
 
