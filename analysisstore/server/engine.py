@@ -75,7 +75,8 @@ class AnalysisHeaderHandler(DefaultHandler):
         if _id:
             raise tornado.web.HTTPError(500, 'No ObjectId based search supported')
         if find_last:
-            docs = database.analysis_header.find().sort('time', direction=pymongo.DESCENDING)
+            docs = database.analysis_header.find().sort('time', 
+                                direction=pymongo.DESCENDING)
         else:
             docs = database.analysis_header.find(query)
 
