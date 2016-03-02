@@ -81,7 +81,8 @@ class AnalysisHeaderHandler(DefaultHandler):
             docs = database.analysis_header.find(query)
 
         if not docs:
-            raise tornado.web.HTTPError(500, reason='No results found for query')
+            raise tornado.web.HTTPError(500, 
+                                        reason='No results found for query')
         else:
             utils.return2client(self, docs)
 
