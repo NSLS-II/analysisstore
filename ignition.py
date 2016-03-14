@@ -1,10 +1,15 @@
 from __future__ import (absolute_import, print_function, unicode_literals)
 import argparse
 import tornado.web
+import sys
 import tornado.ioloop
+import tornado.options
 from  analysisstore.server.engine import (AnalysisHeaderHandler,
-                                          AnalysisTailHandler)
-from analysisstore.server.conf import load_configuration
+                                          AnalysisTailHandler,
+                                          EventHeaderHandler,
+                                          EventHandler,
+                                          db_connect)
+from amostra.server.conf import load_configuration
 
 
 def start_server(config=None):
@@ -21,7 +26,7 @@ def start_server(config=None):
         the existence of a mongo instance running on the specified location.
     """
     if not config:
-        config = {k: v for k, v in load_configuration('analysisstore', 'ASTR',
+        config = {k: v for k, v in load_configuration('amostra', 'AMST',
                                                       ['mongo_host', 'mongo_port', 'timezone',
                                                        'database', 'service_port'],
                                                       allow_missing=True).items() if v is not None}
@@ -37,6 +42,8 @@ def start_server(config=None):
                         help='port to use to talk to mongo')
     parser.add_argument('--service-port', dest='service_port', type=int,
                         help='port listen to for clients')
+    parser.add_argument('--log_file_prefix', dest='log_file_prefix', type=str,
+                        help='Log file name that tornado logs are dumped')
     args = parser.parse_args()
     if args.database is not None:
         config['database'] = args.database
@@ -48,14 +55,17 @@ def start_server(config=None):
         config['mongo_port'] = args.mongo_port
     service_port = args.service_port
     if service_port is None:
-        service_port = 7770
+        service_port = 7778
+    tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
     db = db_connect(config['database'],
                     config['mongo_host'],
                     config['mongo_port'])
     application = tornado.web.Application([
-        (r'/header', AnalysisHeaderHandler),
-        (r'/tail', AnalysisTailHandler)
+        (r'/sample', SampleReferenceHandler),
+        (r'/request', RequestReferenceHandler),
+        (r'/container', ContainerReferenceHandler),
+        (r'/schema', SchemaHandler)
          ], db=db)
-    print('Starting Analysisstore service with configuration ', config)
+    print('Starting Amostra service with configuration ', config)
     application.listen(service_port)
     tornado.ioloop.IOLoop.current().start()
