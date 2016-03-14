@@ -9,7 +9,7 @@ from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           EventHeaderHandler,
                                           EventHandler,
                                           db_connect)
-from amostra.server.conf import load_configuration
+from analysisstore.server.conf import load_configuration
 
 
 def start_server(config=None):
@@ -26,7 +26,7 @@ def start_server(config=None):
         the existence of a mongo instance running on the specified location.
     """
     if not config:
-        config = {k: v for k, v in load_configuration('amostra', 'AMST',
+        config = {k: v for k, v in load_configuration('analysisstore', 'ASST',
                                                       ['mongo_host', 'mongo_port', 'timezone',
                                                        'database', 'service_port'],
                                                       allow_missing=True).items() if v is not None}
@@ -61,11 +61,7 @@ def start_server(config=None):
                     config['mongo_host'],
                     config['mongo_port'])
     application = tornado.web.Application([
-        (r'/sample', SampleReferenceHandler),
-        (r'/request', RequestReferenceHandler),
-        (r'/container', ContainerReferenceHandler),
-        (r'/schema', SchemaHandler)
          ], db=db)
-    print('Starting Amostra service with configuration ', config)
+    print('Starting Analysisstore service with configuration ', config)
     application.listen(service_port)
     tornado.ioloop.IOLoop.current().start()
