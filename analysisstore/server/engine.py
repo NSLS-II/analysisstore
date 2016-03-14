@@ -9,7 +9,7 @@ import pymongo.errors as perr
 import ujson
 import jsonschema
 
-from analysisbucket.server import utils
+from analysisstore.server import utils
 
 
 loop = tornado.ioloop.IOLoop.instance()
@@ -73,16 +73,17 @@ class AnalysisHeaderHandler(DefaultHandler):
         _id = query.pop('_id', None)
         find_last = query.pop('find_last', None)
         if _id:
-            raise tornado.web.HTTPError(500, 'No ObjectId based search supported')
+            raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
         if find_last:
             docs = database.analysis_header.find().sort('time', 
                                 direction=pymongo.DESCENDING)
         else:
-            docs = database.analysis_header.find(query)
-
+            docs = database.analysis_header.find(query).sort('time',
+                                                             direction=pymongo.DESCENDING)
         if not docs:
-            raise tornado.web.HTTPError(500, 
-                                        reason='No results found for query')
+            raise utils._compose_err_msg(500, 
+                                        reason='No results found for query',
+                                        data=query)
         else:
             utils.return2client(self, docs)
 
@@ -94,15 +95,14 @@ class AnalysisHeaderHandler(DefaultHandler):
         try:
             result = database.analysis_header.insert(data)
         except perr.PyMongoError:
-            raise tornado.web.HTTPError(500,
-                                        status='Unable to insert the document')
-
+            raise utils._compose_err_msg(500,
+                                        status='Unable to insert the document',
+                                        data=data)
         database.analysis_header.create_index([('uid', pymongo.ASCENDING)],
                                        unique=True, background=True)
         database.analysis_header.create_index([('time', pymongo.ASCENDING)],
                                         unique=False)
-
         if not result:
-            raise tornado.web.HTTPError(500)
+            raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
