@@ -98,9 +98,9 @@ class AnalysisHeaderHandler(DefaultHandler):
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
-        database.analysis_header.create_index([('uid', pymongo.ASCENDING)],
+        database.analysis_header.create_index([('uid', pymongo.DESCENDING)],
                                        unique=True, background=True)
-        database.analysis_header.create_index([('time', pymongo.ASCENDING)],
+        database.analysis_header.create_index([('time', pymongo.DESCENDING)],
                                         unique=False)
         if not result:
             raise utils._compose_err_msg(500, status='No result for given query')
@@ -149,11 +149,11 @@ class AnalysisTailHandler(DefaultHandler):
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
-        database.analysis_tail.create_index([('header', pymongo.ASCENDING)],
+        database.analysis_tail.create_index([('header', pymongo.DESCENDING)],
                                        unique=True, background=True)
-        database.analysis_tail.create_index([('uid', pymongo.ASCENDING)],
+        database.analysis_tail.create_index([('uid', pymongo.DESCENDING)],
                                        unique=True, background=True)
-        database.analysis_tail.create_index([('time', pymongo.ASCENDING)],
+        database.analysis_tail.create_index([('time', pymongo.DESCENDING)],
                                         unique=False)
         if not result:
             raise utils._compose_err_msg(500, status='No result for given query')
@@ -200,11 +200,11 @@ class EventHeaderHandler(DefaultHandler):
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
-        database.event_header.create_index([('analysis_header', pymongo.ASCENDING)],
+        database.event_header.create_index([('analysis_header', pymongo.DESCENDING)],
                                        unique=True, background=True)
-        database.event_header.create_index([('uid', pymongo.ASCENDING)],
+        database.event_header.create_index([('uid', pymongo.DESCENDING)],
                                        unique=True, background=True)
-        database.event_header.create_index([('time', pymongo.ASCENDING)],
+        database.event_header.create_index([('time', pymongo.DESCENDING)],
                                         unique=False)
         if not result:
             raise utils._compose_err_msg(500, status='No result for given query')
