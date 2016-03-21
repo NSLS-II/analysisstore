@@ -149,7 +149,7 @@ class AnalysisTailHandler(DefaultHandler):
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
-        database.analysis_tail.create_index([('header', pymongo.DESCENDING)],
+        database.analysis_tail.create_index([('analysis_header', pymongo.DESCENDING)],
                                        unique=True, background=True)
         database.analysis_tail.create_index([('uid', pymongo.DESCENDING)],
                                        unique=True, background=True)
@@ -161,14 +161,14 @@ class AnalysisTailHandler(DefaultHandler):
             utils.return2client(self, data)
     
     
-class EventHeaderHandler(DefaultHandler):
-    """Handler for event_header insert and query operations.
+class DataReferenceHeaderHandler(DefaultHandler):
+    """Handler for data_reference_header insert and query operations.
     Uses traditional RESTful lingo. get for querying and post for inserts
     
     Methods
     -------
     get()
-        Query event_header documents. Query params are jsonified for type preservation
+        Query data_reference_header documents. Query params are jsonified for type preservation
     post()
         Insert a event_header document.Same validation method as bluesky, secondary
         safety net.
@@ -180,7 +180,7 @@ class EventHeaderHandler(DefaultHandler):
         _id = query.pop('_id', None)
         if _id:
             raise utils._compose_err_msg(500, reason='No ObjectId based search supported')        
-        docs = database.event_header.find(query).sort('time',
+        docs = database.data_reference_header.find(query).sort('time',
                                                       direction=pymongo.DESCENDING)
         if not docs:
             raise utils._compose_err_msg(500, 
@@ -201,12 +201,81 @@ class EventHeaderHandler(DefaultHandler):
                                         status='Unable to insert the document',
                                         data=data)
         database.event_header.create_index([('analysis_header', pymongo.DESCENDING)],
-                                       unique=True, background=True)
+                                       unique=True, background=False)
         database.event_header.create_index([('uid', pymongo.DESCENDING)],
-                                       unique=True, background=True)
+                                       unique=True, background=False)
         database.event_header.create_index([('time', pymongo.DESCENDING)],
                                         unique=False)
         if not result:
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
+            
+class DataReferenceHandler(DefaultHandler):
+    """Handler for event insert and query operations.
+    Uses traditional RESTful lingo. get for querying and post for inserts
+    Methods
+    -------
+    get()
+        Query event documents. Get params are json encoded in order to preserve type
+    post()
+        Insert a event document.Same validation method as bluesky, secondary
+        safety net.
+    """
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def get(self):
+        database = self.settings['db']
+        query = utils.unpack_params(self)
+        docs = database.data_reference.find(query)
+        if not docs:
+            raise utils._compose_err_msg(500, 'No results for given query', query)
+        else:
+            self.write('[')
+            d = next(docs)
+            while True:
+                try:
+                    del(d['_id'])
+                    self.write(ujson.dumps(d))
+                    d = next(docs)
+                    self.write(',')
+                except StopIteration:
+                    break
+            self.write(']')
+        self.finish()
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def post(self):
+        database = self.settings['db']
+        data = ujson.loads(self.request.body.decode("utf-8"))
+        if isinstance(data, list):
+            jsonschema.validate(data, utils.schemas['bulk_data_reference'])
+            bulk = database.data_reference.initialize_unordered_bulk_op()
+            for _ in data:
+                if _ is not None:
+                    bulk.insert(_)
+            try:
+                bulk.execute()
+            except pymongo.errors.BulkWriteError as err:
+                raise utils._compose_err_msg(500, err)
+            database.data_reference.create_index([('time', pymongo.DESCENDING),
+                                         ('data_reference_header', pymongo.DESCENDING)])
+            database.data_reference.create_index([('uid', pymongo.DESCENDING)], unique=True)
+        else:
+            jsonschema.validate(data, utils.schemas['data_reference'])
+            result = database.data_reference.insert(data)
+            if not result:
+                raise utils._compose_err_msg(500)
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def put(self):
+        raise utils._compose_err_msg(404)
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def delete(self):
+        raise utils._compose_err_msg(404)
+
+# TODO: Include capped collection support in the next cycle.
