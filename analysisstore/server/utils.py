@@ -9,9 +9,9 @@ import pymongo.cursor
 SCHEMA_PATH = 'schema'
 SCHEMA_NAMES = {'analysis_header': 'analysis_header.json',
                 'analysis_tail': 'analysis_tail.json',
-                'event': 'event.json',
-                'bulk_events': 'bulk_events.json',
-                'event_header': 'event_header.json'}
+                'data_reference': 'data_reference.json',
+                'bulk_data_reference': 'bulk_data_reference.json',
+                'data_reference_header': 'data_reference_header.json'}
 fn = '{}/{{}}'.format(SCHEMA_PATH)
 schemas = {}
 for name, filename in SCHEMA_NAMES.items():
