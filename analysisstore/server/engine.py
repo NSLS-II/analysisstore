@@ -1,4 +1,4 @@
-
+from __future__ import (absolute_import, print_function)
 import tornado.ioloop
 import tornado.web
 from tornado import gen
@@ -54,18 +54,17 @@ class DefaultHandler(tornado.web.RequestHandler):
 
 
 class AnalysisHeaderHandler(DefaultHandler):
-    """Handler for analysis_header insert and query operations.
-    Uses traditional RESTful lingo. get for querying and post for inserts
-
+    """Handler for analysis_header insert, query, and update operations. No deletes are supported.
+    
    Methods
     -------
     get()
-        Query analysis_header documents. Query params are jsonified for type preservation
+        Query analysis_header documents. Query params are jsonified for type preservation so pure string
+        query methods will not work
     post()
         Insert a analysis_header document.Same validation method as bluesky, secondary
         safety net.
     """
-
     @tornado.web.asynchronous
     def get(self):
         database = self.settings['db']
@@ -81,7 +80,7 @@ class AnalysisHeaderHandler(DefaultHandler):
             docs = database.analysis_header.find(query).sort('time',
                                                              direction=pymongo.DESCENDING)
         if not docs:
-            raise utils._compose_err_msg(500, 
+            raise utils._compose_err_msg(500,
                                         reason='No results found for query',
                                         data=query)
         else:
@@ -106,10 +105,9 @@ class AnalysisHeaderHandler(DefaultHandler):
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
-            
+
 class AnalysisTailHandler(DefaultHandler):
     """Handler for analysis_tail insert and query operations.
-    Uses traditional RESTful lingo. get for querying and post for inserts
 
    Methods
     -------
@@ -159,11 +157,10 @@ class AnalysisTailHandler(DefaultHandler):
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
-    
-    
+
+
 class DataReferenceHeaderHandler(DefaultHandler):
     """Handler for data_reference_header insert and query operations.
-    Uses traditional RESTful lingo. get for querying and post for inserts
     
     Methods
     -------
@@ -231,18 +228,7 @@ class DataReferenceHandler(DefaultHandler):
         if not docs:
             raise utils._compose_err_msg(500, 'No results for given query', query)
         else:
-            self.write('[')
-            d = next(docs)
-            while True:
-                try:
-                    del(d['_id'])
-                    self.write(ujson.dumps(d))
-                    d = next(docs)
-                    self.write(',')
-                except StopIteration:
-                    break
-            self.write(']')
-        self.finish()
+            utils.return2client(self, docs)
 
     @tornado.web.asynchronous
     @gen.coroutine
