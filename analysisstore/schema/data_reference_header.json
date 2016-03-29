@@ -1,0 +1,28 @@
+{
+        "definitions": {
+            "data_key": {
+                "title": "data_key",
+                "description": "Describes the objects in the data property of DataReference documents",
+                "properties": {
+                    "dtype": {
+                        "enum": [
+                            "string",
+                            "number",
+                            "array",
+                            "boolean",
+                            "integer"
+                        ],
+                        "type": "string",
+                        "description": "The type of the data in the data_reference.”
+                    },
+                    "external": {
+                        "pattern": "^[A-Z]+:?",
+                        "type": "string",
+                        "description": "Where the data is stored if it is stored external to the data_reference.”
+                    },
+                    "shape": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "The shape of the data.  Null and empty list mean scalar data."
+}
