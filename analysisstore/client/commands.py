@@ -4,6 +4,7 @@ import ujson
 import jsonschema
 from collections import deque
 import uuid
+import six
 import time as ttime
 from requests.exceptions import ConnectionError
 
@@ -42,6 +43,22 @@ class AnalysisClient:
     @property
     def dref_header_url(self):
         return self._host_url + 'data_reference_header'
+        
+    def _doc_or_uid_to_uid(self, doc_or_uid):
+    """Given Document or uid return the uid
+    Parameters
+    ----------
+    doc_or_uid : dict or str
+        If str, then assume uid and pass through, if not, return
+        the 'uid' field
+    Returns
+    -------
+    uid : str
+        A string version of the uid of the given document
+    """
+    if not isinstance(doc_or_uid, six.string_types):
+        doc_or_uid = doc_or_uid['uid']
+    return str(doc_or_uid)
     
     def connection_status(self):
         """Check connection status"""
@@ -51,25 +68,44 @@ class AnalysisClient:
             return False
         return True    
         
-    def create_analysis_header(self, uid=None, time=None, as_doc=False,
+    def insert_analysis_header(self, analysis_header, uid=None, time=None, as_doc=False,
                                **kwargs):
+        
         payload = dict(uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
-            r = requests.get(self.aheader_url, params=ujson.dumps(payload))
+            r = requests.post(self.aheader_url, params=ujson.dumps(payload))
         except ConnectionError:
             raise ConnectionError('No AnalysisStore server found')
         r.raise_for_status() # this is for catching server side issue.
         return payload
         
-    def create_analysis_tail(self, **kwargs):
+    def insert_analysis_tail(self, header, uid=None, time=None, as_doc=False, 
+                             **kwargs):
+        payload = dict(analysis_header=self._doc_or_uid(header),
+                       uid=uid if uid else str(uuid.uuid4()), 
+                       time=time if time else ttime.time(), **kwargs)
+        try:
+            r = requests.post(self.atail_url, params=ujson.dumps(payload))
+        except ConnectionError:
+            raise ConnectionError('No AnalysisStore server found')
+        r.raise_for_status() # this is for catching server side issue.
+        return payload
+
+    def insert_data_reference(self, **kwargs):
         pass
 
-    def create_data_reference(self, **kwargs):
-        pass
-
-    def create_data_reference_header(self, **kwargs):
-        pass
+    def insert_data_reference_header(self, header, uid=None, time=None, as_doc=False, 
+                             **kwargs):
+        payload = dict(analysis_header=self._doc_or_uid(header),
+                       uid=uid if uid else str(uuid.uuid4()), 
+                       time=time if time else ttime.time(), **kwargs)
+        try:
+            r = requests.post(self.dref_header_url, params=ujson.dumps(payload))
+        except ConnectionError:
+            raise ConnectionError('No AnalysisStore server found')
+        r.raise_for_status() # this is for catching server side issue.
+        return payload
 
     def create_bulk_data_reference(self, **kwargs):
         pass
