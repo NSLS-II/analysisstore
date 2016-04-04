@@ -44,6 +44,12 @@ class AnalysisClient:
     def dref_header_url(self):
         return self._host_url + 'data_reference_header'
         
+    def _grouper(self, iterable, n, fillvalue=None):
+        """Collect data into fixed-length chunks or blocks"""
+        args = [iter(iterable)] * n
+        return zip_longest(*args, fillvalue=fillvalue)
+        
+    
     def _doc_or_uid_to_uid(self, doc_or_uid):
     """Given Document or uid return the uid
     Parameters
@@ -77,7 +83,7 @@ class AnalysisClient:
         payload = dict(uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
-            r = requests.post(self.aheader_url, params=ujson.dumps(payload))
+            r = requests.post(self.aheader_url, data=ujson.dumps(payload))
         except ConnectionError:
             raise ConnectionError('No AnalysisStore server found')
         r.raise_for_status() # this is for catching server side issue.
@@ -89,7 +95,7 @@ class AnalysisClient:
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
-            r = requests.post(self.atail_url, params=ujson.dumps(payload))
+            r = requests.post(self.atail_url, data=ujson.dumps(payload))
         except ConnectionError:
             raise ConnectionError('No AnalysisStore server found')
         r.raise_for_status() # this is for catching server side issue.
@@ -101,7 +107,7 @@ class AnalysisClient:
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
-            r = requests.post(self.dref_header_url, params=ujson.dumps(payload))
+            r = requests.post(self.dref_header_url, data=ujson.dumps(payload))
         except ConnectionError:
             raise ConnectionError('No AnalysisStore server found')
         r.raise_for_status() # this is for catching server side issue.
@@ -114,20 +120,25 @@ class AnalysisClient:
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
-            r = requests.post(self.atail_url, params=ujson.dumps(payload))
+            r = requests.post(self.dref_url, data=ujson.dumps(payload))
         except ConnectionError:
             raise ConnectionError('No AnalysisStore server found')
         r.raise_for_status() # this is for catching server side issue.
         return payload
 
-    def insert_bulk_data_reference(self, data_header, uid=None, time=None, as_doc=False, 
-                             **kwargs):
-        pass
-                        
-    def update_analysis_header(self, **kwargs):
+    def insert_bulk_data_reference(self, data_header, data, **kwargs):
+        data_len = len(data)
+        chunk_count = data_len // chunk_size + bool(data_len % chunk_size)
+        chunks = self.grouper(data, chunk_count)
+        for c in chunks:
+            payload = ujson.dumps(list(c))
+            r = requests.post(self.dref_url, data=c)        
+        r.raise_for_status()
+        
+    def update_analysis_header(self, query, update):
         pass
 
-    def update_analysis_tail(self, **kwargs):
+    def update_analysis_tail(self, query, update):
         pass
 
     def find_analysis_header(self, **kwargs):
