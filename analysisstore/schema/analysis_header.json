@@ -9,8 +9,8 @@
             "description": "Name of project that this run is part of"
         },
         "sample": {
-            "type": ["object"],
-            "description": "Information about the sample, may be a UID to another collection"
+            "type": ["string"],
+            "description": "UID to another collection in amostra"
         },
         "beamline_id": {
             "type": "string",
@@ -42,5 +42,5 @@
         "time"
      ],
     "type": "object",
-    "description": "Document created at the start of run.  Provides a seach target and later documents link to it"
+    "description": "Header of the analysis data. No real data in this header but metadata that allows us locate data"
 }

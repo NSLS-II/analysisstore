@@ -7,16 +7,19 @@ import pymongo.cursor
 
 
 SCHEMA_PATH = 'schema'
-SCHEMA_NAMES = {'run_start': 'run_start.json',
-                'run_stop': 'run_stop.json',
-                'event': 'event.json',
-                'bulk_events': 'bulk_events.json',
-                'descriptor': 'event_descriptor.json'}
+SCHEMA_NAMES = {'analysis_header': 'analysis_header.json',
+                'analysis_tail': 'analysis_tail.json',
+                'data_reference': 'data_reference.json',
+                'bulk_data_reference': 'bulk_data_reference.json',
+                'data_reference_header': 'data_reference_header.json'}
 fn = '{}/{{}}'.format(SCHEMA_PATH)
 schemas = {}
 for name, filename in SCHEMA_NAMES.items():
-    with open(rs_fn('metadataservice', resource_name=fn.format(filename))) as fin:
+    with open(rs_fn('analysisstore', resource_name=fn.format(filename))) as fin:
         schemas[name] = ujson.load(fin)
+
+def _compose_err_msg(code, status, m_str=''):
+    fmsg = status + str(m_str)
 
 
 def unpack_params(handler):
