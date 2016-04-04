@@ -5,6 +5,8 @@ import jsonschema
 from collections import deque
 import uuid
 import time as ttime
+from requests.exceptions import ConnectionError
+
 
 class AnalysisClient:
     """Your path to AnalysisStore(yiiiiissssss, camelcase"""
@@ -12,11 +14,10 @@ class AnalysisClient:
         self.host = host
         self.header_list = []
         self.data_ref_list = deque()
-        self._host_url = 
     
     @property
     def host(self):
-        return __host
+        return self.__host
     
     @host.setter
     def host(self, new_val):
@@ -28,27 +29,27 @@ class AnalysisClient:
     
     @property
     def aheader_url(self):
-        return self._host_url + '/analysis_header'
+        return self._host_url + 'analysis_header'
     
     @property
     def atail_url(self):
-        return self._host_url + '/analysis_tail'    
+        return self._host_url + 'analysis_tail'    
     
     @property
     def dref_url(self):
-        return self._host_url + '/data_reference'
+        return self._host_url + 'data_reference'
     
     @property
     def dref_header_url(self):
-        return self._host_url + '/data_reference_header'
+        return self._host_url + 'data_reference_header'
     
     def connection_status(self):
         """Check connection status"""
-        r = requests.get(self._host_url + '/is_connected')
-        status = False        
-        if r.status_code == 200:
-            status = True
-        return status
+        try:        
+            r = requests.get(self._host_url + 'is_connected')
+        except ConnectionError:
+            return False
+        return True    
         
     def create_analysis_header(self, uid=None, time=None, as_doc=False,
                                **kwargs):
