@@ -60,6 +60,9 @@ class AnalysisClient:
         doc_or_uid = doc_or_uid['uid']
     return str(doc_or_uid)
     
+    def _validate_data_headers(self):
+        pass
+    
     def connection_status(self):
         """Check connection status"""
         try:        
@@ -92,9 +95,6 @@ class AnalysisClient:
         r.raise_for_status() # this is for catching server side issue.
         return payload
 
-    def insert_data_reference(self, **kwargs):
-        pass
-
     def insert_data_reference_header(self, header, uid=None, time=None, as_doc=False, 
                              **kwargs):
         payload = dict(analysis_header=self._doc_or_uid(header),
@@ -107,9 +107,23 @@ class AnalysisClient:
         r.raise_for_status() # this is for catching server side issue.
         return payload
 
-    def create_bulk_data_reference(self, **kwargs):
-        pass
+    def insert_data_reference(self,  data_header, uid=None, time=None, as_doc=False, 
+                             **kwargs):
+        self._validate_data_headers() # TODO: Complete this
+        payload = dict(data_reference_header=self._doc_or_uid(data_header),
+                       uid=uid if uid else str(uuid.uuid4()), 
+                       time=time if time else ttime.time(), **kwargs)
+        try:
+            r = requests.post(self.atail_url, params=ujson.dumps(payload))
+        except ConnectionError:
+            raise ConnectionError('No AnalysisStore server found')
+        r.raise_for_status() # this is for catching server side issue.
+        return payload
 
+    def insert_bulk_data_reference(self, data_header, uid=None, time=None, as_doc=False, 
+                             **kwargs):
+        pass
+                        
     def update_analysis_header(self, **kwargs):
         pass
 
