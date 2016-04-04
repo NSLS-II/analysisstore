@@ -55,8 +55,11 @@ class AnalysisClient:
                                **kwargs):
         payload = dict(uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
-        r = requests.get(self.aheader_url, params=ujson.dumps(payload))
-        r.raise_for_status()
+        try:
+            r = requests.get(self.aheader_url, params=ujson.dumps(payload))
+        except ConnectionError:
+            raise ConnectionError('No AnalysisStore server found')
+        r.raise_for_status() # this is for catching server side issue.
         return payload
         
     def create_analysis_tail(self, **kwargs):
