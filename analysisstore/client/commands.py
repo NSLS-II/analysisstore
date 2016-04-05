@@ -10,10 +10,9 @@ from requests.exceptions import ConnectionError
 
 
 class AnalysisClient:
-    """Your path to AnalysisStore(yiiiiissssss, camelcase"""
+    """Client used to pass messages between analysisstore server and apps"""
     def __init__(self, host='localhost:8999'):
-        self.host = host
-        self.header_list = []
+        self.host = host #no need for port, provide one address
         self.data_ref_list = deque()
     
     @property
@@ -26,22 +25,27 @@ class AnalysisClient:
     
     @property 
     def _host_url(self):
+        """URL to the"""
         return 'http://{}/'.format(self.host)
     
     @property
     def aheader_url(self):
+        """URL for analysis header handler"""
         return self._host_url + 'analysis_header'
     
     @property
     def atail_url(self):
+        """URL for analysis tail handler"""
         return self._host_url + 'analysis_tail'    
     
     @property
     def dref_url(self):
+        """URL for data reference handler"""
         return self._host_url + 'data_reference'
     
     @property
     def dref_header_url(self):
+        """URL for data reference header handler"""
         return self._host_url + 'data_reference_header'
         
     def _grouper(self, iterable, n, fillvalue=None):
@@ -134,6 +138,12 @@ class AnalysisClient:
             payload = ujson.dumps(list(c))
             r = requests.post(self.dref_url, data=c)        
         r.raise_for_status()
+    
+    def save_file_link(self, data_header):
+        pass
+    
+    def save_file(self, data_header):
+        pass
         
     def update_analysis_header(self, query, update):
         pass
