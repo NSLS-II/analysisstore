@@ -139,9 +139,11 @@ class AnalysisClient:
             r = requests.post(self.dref_url, data=c)        
         r.raise_for_status()
 
-    def upload_file(self, file):
+    def upload_file(self, header, file):
+        """Upload """
         files = {'files': open(file, 'rb')}
-        r = requests.post(self.fref_url, files=files)
+        r = requests.post(self.fref_url, files=files, data={'header': header})
+        r.raise_for_status()
 
     def update_analysis_header(self, query, update):
         pass
