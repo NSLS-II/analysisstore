@@ -13,15 +13,10 @@ class AnalysisClient:
     """Client used to pass messages between analysisstore server and apps"""
     def __init__(self, host='localhost:8999'):
         self.host = host #no need for port, provide one address
-        self.data_ref_list = deque()
     
     @property
     def host(self):
         return self.__host
-    
-    @host.setter
-    def host(self, new_val):
-        self.__host = new_val
     
     @property 
     def _host_url(self):
@@ -48,11 +43,16 @@ class AnalysisClient:
         """URL for data reference header handler"""
         return self._host_url + 'data_reference_header'
         
+    @property
+    def fref_url(self):
+        """URL for file upload handler"""
+        return self._host_url + 'upload'
+
+
     def _grouper(self, iterable, n, fillvalue=None):
         """Collect data into fixed-length chunks or blocks"""
         args = [iter(iterable)] * n
         return zip_longest(*args, fillvalue=fillvalue)
-        
     
     def _doc_or_uid_to_uid(self, doc_or_uid):
     """Given Document or uid return the uid
@@ -119,7 +119,7 @@ class AnalysisClient:
 
     def insert_data_reference(self,  data_header, uid=None, time=None, as_doc=False, 
                              **kwargs):
-        self._validate_data_headers() # TODO: Complete this
+        self._validate_data_headers()
         payload = dict(data_reference_header=self._doc_or_uid(data_header),
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
@@ -138,13 +138,11 @@ class AnalysisClient:
             payload = ujson.dumps(list(c))
             r = requests.post(self.dref_url, data=c)        
         r.raise_for_status()
-    
-    def save_file_link(self, data_header):
-        pass
-    
-    def save_file(self, data_header):
-        pass
-        
+
+    def upload_file(self, file):
+        files = {'files': open(file, 'rb')}
+        r = requests.post(self.fref_url, files=files)
+
     def update_analysis_header(self, query, update):
         pass
 

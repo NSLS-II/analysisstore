@@ -264,4 +264,23 @@ class DataReferenceHandler(DefaultHandler):
     def delete(self):
         raise utils._compose_err_msg(404)
 
-# TODO: Include capped collection support in the next cycle.
+    class FileHandler(DefaultHandler):
+        """Provides user the ability to upload/retrieve data over the wire"""
+        def post(self):
+            # TODO: Default to a directory for reading/writing files
+            print(self.request.files)
+            files = self.request.files['files']
+            for xfile in files:
+                # get the default file name
+                file = xfile['filename']
+                # the filename should not contain any "evil" special characters
+                # basically "evil" characters are all characters that allows you to break out from the upload directory
+                index = file.rfind(".")
+                filename = file[:index].replace(".", "") + str(time.time()).replace(".", "") + file[index:]
+                filename = filename.replace("/", "")
+                # save the file in the upload folder
+                with open(filename, "wb") as out:
+                    # Be aware, that the user may have uploaded something evil like an executable script ...
+                    # so it is a good idea to check the file content (xfile['body']) before saving the file
+                    out.write(xfile['body']) 
+

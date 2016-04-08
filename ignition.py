@@ -6,8 +6,9 @@ import tornado.ioloop
 import tornado.options
 from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           AnalysisTailHandler,
-                                          EventHeaderHandler,
-                                          EventHandler,
+                                          DataReferenceHeaderHandler,
+                                          DataReferenceHandler,
+                                          FileHandler,
                                           db_connect)
 from analysisstore.server.conf import load_configuration
 
@@ -61,7 +62,9 @@ def start_server(config=None):
                     config['mongo_host'],
                     config['mongo_port'])
     application = tornado.web.Application([(r'/header', AnalysisHeaderHandler),
-         (r'/tail', AnalysisTailHandler)], db=db)
+         (r'/tail', AnalysisTailHandler),
+         (r'/upload', FileHandler),
+         ], db=db)
     print('Starting Analysisstore service with configuration ', config)
     application.listen(service_port)
     tornado.ioloop.IOLoop.current().start()
