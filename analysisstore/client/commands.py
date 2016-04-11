@@ -1,8 +1,7 @@
 from __future__ import (absolute_import, unicode_literals, print_function)
 import requests
 import ujson
-import jsonschema
-from collections import deque
+from itertools import zip_longest
 import uuid
 import six
 import time as ttime
@@ -55,21 +54,21 @@ class AnalysisClient:
         return zip_longest(*args, fillvalue=fillvalue)
     
     def _doc_or_uid_to_uid(self, doc_or_uid):
-    """Given Document or uid return the uid
-    Parameters
-    ----------
-    doc_or_uid : dict or str
-        If str, then assume uid and pass through, if not, return
-        the 'uid' field
-    Returns
-    -------
-    uid : str
-        A string version of the uid of the given document
-    """
-    if not isinstance(doc_or_uid, six.string_types):
-        doc_or_uid = doc_or_uid['uid']
-    return str(doc_or_uid)
-    
+        """Given Document or uid return the uid
+        Parameters
+        ----------
+        doc_or_uid : dict or str
+            If str, then assume uid and pass through, if not, return
+            the 'uid' field
+        Returns
+        -------
+        uid : str
+            A string version of the uid of the given document
+        """
+        if not isinstance(doc_or_uid, six.string_types):
+            doc_or_uid = doc_or_uid['uid']
+        return str(doc_or_uid)
+        
     def _validate_data_headers(self):
         pass
     
@@ -79,6 +78,7 @@ class AnalysisClient:
             r = requests.get(self._host_url + 'is_connected')
         except ConnectionError:
             return False
+        r.raise_for_status()
         return True    
         
     def insert_analysis_header(self, analysis_header, uid=None, time=None, as_doc=False,
@@ -130,7 +130,7 @@ class AnalysisClient:
         r.raise_for_status() # this is for catching server side issue.
         return payload
 
-    def insert_bulk_data_reference(self, data_header, data, **kwargs):
+    def insert_bulk_data_reference(self, data_header, data, chunk_size = 500, **kwargs):
         data_len = len(data)
         chunk_count = data_len // chunk_size + bool(data_len % chunk_size)
         chunks = self.grouper(data, chunk_count)
@@ -140,10 +140,24 @@ class AnalysisClient:
         r.raise_for_status()
 
     def upload_file(self, header, file):
-        """Upload """
+        """Upload one file at a time"""
+        # I discourage and limit file upload to one file per time bc I do not want people
+        # abusing this feature. Bulk inserts is as simple as passing a list of files
         files = {'files': open(file, 'rb')}
-        r = requests.post(self.fref_url, files=files, data={'header': header})
+        r = requests.post(self.fref_url, files=files, data=ujson.dumps({'header': header}))
         r.raise_for_status()
+        
+    def download_file(self, header):
+        header = self._doc_or_uid_to_uid(header)
+        r = requests.get(self.fref_url, params=ujson.dumps({'header': header}), stream=True)
+        r.raise_for_status()
+        # TODO: Get the name of the file from the server and then 
+        local_filename = 'my_tmp_name'
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=4096): 
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+        return local_filename # return the url to the local saved locally
 
     def update_analysis_header(self, query, update):
         pass
