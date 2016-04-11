@@ -62,9 +62,12 @@ def start_server(config=None):
                     config['mongo_host'],
                     config['mongo_port'])
     application = tornado.web.Application([(r'/header', AnalysisHeaderHandler),
-         (r'/tail', AnalysisTailHandler),
-         (r'/upload', FileHandler),
-         ], db=db)
+                                           (r'/data_ref', DataReferenceHandler),
+                                          (r'/data_ref_header', 
+                                              DataReferenceHeaderHandler),
+                                          (r'/tail', AnalysisTailHandler),
+                                          (r'/upload', FileHandler)
+                                          ], db=db)
     print('Starting Analysisstore service with configuration ', config)
     application.listen(service_port)
     tornado.ioloop.IOLoop.current().start()
