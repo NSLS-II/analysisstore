@@ -1,0 +1,74 @@
+    {
+        "definitions": {
+            "data_key": {
+                "title": "data_key",
+                "description": "Describes the objects in the data property of data_reference documents",
+                "properties": {
+                    "dtype": {
+                        "enum": [
+                            "string",
+                            "number",
+                            "array",
+                            "boolean",
+                            "integer"
+                        ],
+                        "type": "string",
+                        "description": "The type of the data in the data_reference."
+                    },
+                    "external": {
+                        "pattern": "^[A-Z]+:?",
+                        "type": "string",
+                        "description": "Where the data is stored if it is stored external to the data_references."
+                    },
+                    "shape": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "The shape of the data.  Null and empty list mean scalar data."
+                    },
+                    "source": {
+                        "type": "string",
+                        "description": "The source (ex piece of hardware) of the data."
+                    }
+                },
+                "required": [
+                    "source",
+                    "dtype",
+                    "shape"
+                ],
+                "type": "object"
+            }
+        },
+        "properties": {
+            "data_keys": {
+                "additionalProperties": {
+                    "$ref": "#/definitions/data_key"
+                },
+                "type": "object",
+                "description": "The describes the data to be in the data_reference Documents",
+                "title": "data_keys"
+            },
+            "uid": {
+                "type": "string",
+                "description": "Globally unique ID for this data_reference descriptor.",
+                "title": "uid"
+            },
+            "analysis_header": {
+                "type": "string",
+                "description": "Globally unique ID to the analysis_header document this descriptor is associtaed with."
+            },
+            "time": {
+                "type": "number",
+                "description": "Creation time of the document as unix epoch time."
+            }
+        },
+        "required": [
+            "uid",
+            "data_keys",
+            "analysis_header",
+            "time"
+        ],
+        "type": "object",
+        "title": "data_reference_header",
+        "description": "Document to describe the data captured in the associated data_reference documents"
+    }

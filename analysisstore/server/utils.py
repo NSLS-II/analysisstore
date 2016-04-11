@@ -6,7 +6,7 @@ import ujson
 import pymongo.cursor
 
 
-SCHEMA_PATH = 'schema'
+SCHEMA_PATH = 'schemas'
 SCHEMA_NAMES = {'analysis_header': 'analysis_header.json',
                 'analysis_tail': 'analysis_tail.json',
                 'data_reference': 'data_reference.json',

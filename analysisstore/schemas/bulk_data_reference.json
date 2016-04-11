@@ -12,23 +12,23 @@
                     },
                     "timestamps": {
                         "type": "object",
-                        "description": "The timestamps of the individual measurement data"
+                        "description": "The timestamps of the individual analysis data"
                     },
-                    “data_reference_header”: {
+                    "descriptor": {
                         "type": "string",
-                        "description": "UID to point back to DataReferenceHeader for this DataReference stream"
+                        "description": "UID to point back to Descriptor for this data_reference stream"
                     },
                     "seq_num": {
                         "type": "integer",
-                        "description": "Sequence number to identify the location of this DataReference in the DataReference stream"
+                        "description": "Sequence number to identify the location of this data_reference in the data_reference stream"
                     },
                     "time": {
                         "type": "number",
-                        "description": "The event time.  This maybe different than the timestamps on each of the data entries"
+                        "description": "The data_reference time.  This maybe different than the timestamps on each of the data entries"
                     },
                     "uid": {
                         "type": "string",
-                        "description": "Globally unique identifier for this Event"
+                        "description": "Globally unique identifier for this data_reference"
                     }
                 },
                 "required": [
@@ -36,12 +36,12 @@
                     "data",
                     "timestamps",
                     "time",
-                    “data_reference_header”,
+                    "descriptor",
                     "seq_num"
                 ],
                 "additionalProperties": false,
                 "type": "object",
-                "title": "event",
+                "title": "data_reference",
                 "description": "Document to record a quanta of collected data"
             }
         }

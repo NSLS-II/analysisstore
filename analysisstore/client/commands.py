@@ -46,7 +46,7 @@ class AnalysisClient:
     @property
     def fref_url(self):
         """URL for file upload handler"""
-        return self._host_url + 'upload'
+        return self._host_url + 'file'
 
 
     def _grouper(self, iterable, n, fillvalue=None):

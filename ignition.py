@@ -66,7 +66,7 @@ def start_server(config=None):
                                           (r'/data_ref_header', 
                                               DataReferenceHeaderHandler),
                                           (r'/tail', AnalysisTailHandler),
-                                          (r'/upload', FileHandler)
+                                          (r'/file', FileHandler)
                                           ], db=db)
     print('Starting Analysisstore service with configuration ', config)
     application.listen(service_port)

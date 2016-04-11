@@ -2,7 +2,7 @@ from __future__ import (absolute_import, print_function)
 import tornado.ioloop
 import tornado.web
 from tornado import gen
-
+import time
 import pymongo
 import pymongo.errors as perr
 
@@ -267,20 +267,23 @@ class DataReferenceHandler(DefaultHandler):
     class FileHandler(DefaultHandler):
         """Provides user the ability to upload/retrieve data over the wire"""
         def post(self):
-            # TODO: Default to a directory for reading/writing files
-            print(self.request.files)
+            database = self.settings['db']
+            _header_info = ujson.loads(self.request.body.decode("utf-8"))
             files = self.request.files['files']
-            for xfile in files:
-                # get the default file name
-                file = xfile['filename']
-                # the filename should not contain any "evil" special characters
-                # basically "evil" characters are all characters that allows you to break out from the upload directory
-                index = file.rfind(".")
-                filename = file[:index].replace(".", "") + str(time.time()).replace(".", "") + file[index:]
-                filename = filename.replace("/", "")
-                # save the file in the upload folder
-                with open(filename, "wb") as out:
-                    # Be aware, that the user may have uploaded something evil like an executable script ...
-                    # so it is a good idea to check the file content (xfile['body']) before saving the file
-                    out.write(xfile['body']) 
+            try:
+                for xfile in files:
+                    # get the default file name
+                    file = xfile['filename']
+                    # the filename should not contain any "evil" special characters
+                    # basically "evil" characters are all characters that allows you to break out from the upload directory
+                    index = file.rfind(".")
+                    filename = file[:index].replace(".", "") + str(time.time()).replace(".", "") + file[index:]
+                    filename = filename.replace("/", "")
+                    # save the file in the upload folder
+                    with open(filename, "wb") as out:
+                        # Be aware, that the user may have uploaded something evil like an executable script ...
+                        # so it is a good idea to check the file content (xfile['body']) before saving the file
+                        out.write(xfile['body'])
+            except:
+                raise utils._compose_err_msg(500, 'Something went wrong saving the file')
 
