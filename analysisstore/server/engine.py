@@ -5,7 +5,7 @@ from tornado import gen
 import time
 import pymongo
 import pymongo.errors as perr
-
+import os
 import ujson
 import jsonschema
 
@@ -257,7 +257,7 @@ class DataReferenceHandler(DefaultHandler):
     @tornado.web.asynchronous
     @gen.coroutine
     def put(self):
-        raise utils._compose_err_msg(404)
+        raise utils._compose_err_msg(404, 'Data points cannot be updated')
 
     @tornado.web.asynchronous
     @gen.coroutine
@@ -266,6 +266,11 @@ class DataReferenceHandler(DefaultHandler):
 
     class FileHandler(DefaultHandler):
         """Provides user the ability to upload/retrieve data over the wire"""
+        @property
+        def save_path(self):
+            # TODO: make this directory part of overall config
+            return os.path.expanduser('~/data/analysisstore_files')  
+        
         def post(self):
             database = self.settings['db']
             _header_info = ujson.loads(self.request.body.decode("utf-8"))
@@ -274,16 +279,41 @@ class DataReferenceHandler(DefaultHandler):
                 for xfile in files:
                     # get the default file name
                     file = xfile['filename']
-                    # the filename should not contain any "evil" special characters
-                    # basically "evil" characters are all characters that allows you to break out from the upload directory
+                    #refine evil characters that might mess with file directory of the server
                     index = file.rfind(".")
                     filename = file[:index].replace(".", "") + str(time.time()).replace(".", "") + file[index:]
                     filename = filename.replace("/", "")
                     # save the file in the upload folder
+                    filename = os.path.join(self.save_path, filename)
                     with open(filename, "wb") as out:
-                        # Be aware, that the user may have uploaded something evil like an executable script ...
-                        # so it is a good idea to check the file content (xfile['body']) before saving the file
+                        # Make sure no executable whatsoever that might be insecure
                         out.write(xfile['body'])
+                    database.file_lookup.insert({'analysis_header': _header_info, 'filename': filename})
+                    database.file_lookup.create_index([('analysis_header', pymongo.DESCENDING)], unique=False)
             except:
                 raise utils._compose_err_msg(500, 'Something went wrong saving the file')
 
+        def get(self):
+            
+            # 1. Get all files provided header
+            # 2. Fetch all files from the directory
+            # 3. Write all files back to client 
+            # Return all files provided header
+            _file_path = "%s/%s" % (self.save_path, file_name)
+            if not file_name or not os.path.exists(_file_path):
+                raise utils._compose_err_msg(404, 'File does not exist on the server side')
+            self.set_header('Content-Type', 'application/force-download')
+            self.set_header('Content-Disposition', 'attachment; filename=%s' % file_name)    
+            with open(_file_path, "rb") as f:
+                try:
+                    while True:
+                        _buffer = f.read(4096)
+                        if _buffer:
+                            self.write(_buffer)
+                        else:
+                            f.close()
+                            self.finish()
+                            return
+                except:
+                    raise utils._compose_err_msg(404)
+            raise utils._compose_err_msg(500)
