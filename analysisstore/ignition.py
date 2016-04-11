@@ -69,7 +69,7 @@ def start_server(config=None):
     application = tornado.web.Application([(r'/header', AnalysisHeaderHandler),
                                            (r'/data_ref', DataReferenceHandler),
                                           (r'/data_ref_header', 
-                                              DataReferenceHeaderHandler),
+                                           DataReferenceHeaderHandler),
                                           (r'/tail', AnalysisTailHandler),
                                           (r'/file', AnalysisFileHandler)
                                           ], db=db)

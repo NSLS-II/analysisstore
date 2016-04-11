@@ -294,12 +294,13 @@ class AnalysisFileHandler(DefaultHandler):
             raise utils._compose_err_msg(500, 'Something went wrong saving the file')
 
     def get(self):
-        pass
-        # 1. Get all files provided header
-        # 2. Fetch all files from the directory
-        # 3. Write all files back to client 
-        # Return all files provided header
-        self.write('okay')
+        database = self.settings['db']
+        query = utils.unpack_params(self)
+        try:
+            file_name = next(database.file_lookup.find(query).sort('time',
+                                                                   direction=pymongo.DESCENDING))
+        except StopIteration:
+            raise utils._compose_err_msg(500, 'No file saved for this header ', query)
         _file_path = "%s/%s" % (self.save_path, file_name)
         if not file_name or not os.path.exists(_file_path):
             raise utils._compose_err_msg(404, 'File does not exist on the server side')

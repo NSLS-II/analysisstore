@@ -151,7 +151,8 @@ class AnalysisClient:
         header = self._doc_or_uid_to_uid(header)
         r = requests.get(self.fref_url, params=ujson.dumps({'header': header}), stream=True)
         r.raise_for_status()
-        # TODO: Get the name of the file from the server and then 
+        r.headers['Content-Disposition'] # parse file name here
+        # TODO: Get the name of the file from the server
         local_filename = 'my_tmp_name'
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=4096): 
