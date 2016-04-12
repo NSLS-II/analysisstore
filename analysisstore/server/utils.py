@@ -6,7 +6,7 @@ import ujson
 import pymongo.cursor
 
 
-SCHEMA_PATH = 'schema'
+SCHEMA_PATH = 'schemas'
 SCHEMA_NAMES = {'analysis_header': 'analysis_header.json',
                 'analysis_tail': 'analysis_tail.json',
                 'data_reference': 'data_reference.json',
@@ -19,8 +19,7 @@ for name, filename in SCHEMA_NAMES.items():
         schemas[name] = ujson.load(fin)
 
 def _compose_err_msg(code, status, m_str=''):
-    fmsg = status + str(m_str)
-
+    return tornado.web.HTTPError(code, status + str(m_str))
 
 def unpack_params(handler):
     """Unpacks the queries from the body of the header
