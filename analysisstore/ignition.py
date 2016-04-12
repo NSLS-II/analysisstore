@@ -67,11 +67,11 @@ def start_server(config=None):
                     config['mongo_host'],
                     config['mongo_port'])
 
-    application = tornado.web.Application([(r'/header', AnalysisHeaderHandler),
-                                           (r'/data_ref', DataReferenceHandler),
-                                          (r'/data_ref_header', 
+    application = tornado.web.Application([(r'/analysis_header', AnalysisHeaderHandler),
+                                           (r'/data_reference', DataReferenceHandler),
+                                          (r'/data_reference_header', 
                                            DataReferenceHeaderHandler),
-                                          (r'/tail', AnalysisTailHandler),
+                                          (r'/analysis_tail', AnalysisTailHandler),
                                           (r'/file', AnalysisFileHandler),
                                           (r'/is_connected', ConnStatHandler)
                                           ], db=db)

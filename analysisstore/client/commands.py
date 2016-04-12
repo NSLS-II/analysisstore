@@ -77,13 +77,13 @@ class AnalysisClient:
         r.raise_for_status()
         return True    
         
-    def insert_analysis_header(self, analysis_header, uid=None, time=None, as_doc=False,
+    def insert_analysis_header(self, uid=None, time=None, as_doc=False,
                                **kwargs):
         
         payload = dict(uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
-            r = requests.post(self.aheader_url, data=ujson.dumps(payload))
+            r = requests.post(self.aheader_url, data=ujson.dumps(payload), timeout=2.0)
         except ConnectionError:
             raise ConnectionError('No AnalysisStore server found')
         r.raise_for_status() # this is for catching server side issue.

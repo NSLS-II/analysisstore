@@ -87,7 +87,7 @@ class AnalysisHeaderHandler(DefaultHandler):
         if not docs:
             raise utils._compose_err_msg(500,
                                         reason='No results found for query',
-                                        data=query)
+                                        m_str=query)
         else:
             utils.return2client(self, docs)
 
@@ -98,10 +98,9 @@ class AnalysisHeaderHandler(DefaultHandler):
         jsonschema.validate(data, utils.schemas['analysis_header'])
         try:
             result = database.analysis_header.insert(data)
-        except perr.PyMongoError:
+        except:
             raise utils._compose_err_msg(500,
-                                        status='Unable to insert the document',
-                                        data=data)
+                                        status='Unable to insert the document')
         database.analysis_header.create_index([('uid', pymongo.DESCENDING)],
                                        unique=True, background=True)
         database.analysis_header.create_index([('time', pymongo.DESCENDING)],
@@ -137,7 +136,7 @@ class AnalysisTailHandler(DefaultHandler):
         if not docs:
             raise utils._compose_err_msg(500, 
                                         reason='No results found for query',
-                                        data=query)
+                                        m_str=query)
         else:
             utils.return2client(self, docs)
 
@@ -149,6 +148,7 @@ class AnalysisTailHandler(DefaultHandler):
         try:
             result = database.analysis_header.insert(data)
         except perr.PyMongoError:
+            # TODO: When do we need compound indexing!?
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
