@@ -13,10 +13,6 @@ class AnalysisClient:
     def __init__(self, host='localhost:8999'):
         self.host = host #no need for port, provide one address
     
-    @property
-    def host(self):
-        return self.__host
-    
     @property 
     def _host_url(self):
         """URL to the"""
@@ -136,7 +132,7 @@ class AnalysisClient:
         chunks = self.grouper(data, chunk_count)
         for c in chunks:
             payload = ujson.dumps(list(c))
-            r = requests.post(self.dref_url, data=c)        
+            r = requests.post(self.dref_url, data=payload)        
         r.raise_for_status()
 
     def upload_file(self, header, file):
