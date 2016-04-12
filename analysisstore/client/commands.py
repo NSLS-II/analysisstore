@@ -71,7 +71,7 @@ class AnalysisClient:
     def connection_status(self):
         """Check connection status"""
         try:        
-            r = requests.get(self._host_url + 'is_connected')
+            r = requests.get(self._host_url + 'is_connected', timeout=0.1)
         except ConnectionError:
             return False
         r.raise_for_status()

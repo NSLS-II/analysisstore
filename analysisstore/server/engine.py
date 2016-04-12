@@ -54,9 +54,7 @@ class DefaultHandler(tornado.web.RequestHandler):
 
 class ConnStatHandler(DefaultHandler):
     @tornado.web.asynchronous
-    def get(self):
-        database = self.settings['db']
-        database['__name__']
+    def get(self):        
         print('Somebody pinged me')
         self.finish()
 
