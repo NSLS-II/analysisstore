@@ -52,6 +52,13 @@ class DefaultHandler(tornado.web.RequestHandler):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
 
+class ConnStatHandler(DefaultHandler):
+    @tornado.web.asynchronous
+    def get(self):
+        database = self.settings['db']
+        database['__name__']
+        print('Somebody pinged me')
+        self.finish()
 
 class AnalysisHeaderHandler(DefaultHandler):
     """Handler for analysis_header insert, query, and update operations. No deletes are supported.

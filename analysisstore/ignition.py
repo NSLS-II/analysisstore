@@ -9,6 +9,7 @@ from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           DataReferenceHeaderHandler,
                                           DataReferenceHandler,
                                           AnalysisFileHandler,
+                                          ConnStatHandler,
                                           db_connect)
 from analysisstore.server.conf import load_configuration
 
@@ -71,7 +72,8 @@ def start_server(config=None):
                                           (r'/data_ref_header', 
                                            DataReferenceHeaderHandler),
                                           (r'/tail', AnalysisTailHandler),
-                                          (r'/file', AnalysisFileHandler)
+                                          (r'/file', AnalysisFileHandler),
+                                          (r'/is_connected', ConnStatHandler)
                                           ], db=db)
     print('Starting Analysisstore service with configuration ', config)
     application.listen(config['service_port'])
