@@ -55,7 +55,6 @@ class DefaultHandler(tornado.web.RequestHandler):
 class ConnStatHandler(DefaultHandler):
     @tornado.web.asynchronous
     def get(self):        
-        print('Somebody pinged me')
         self.finish()
 
 class AnalysisHeaderHandler(DefaultHandler):
@@ -286,7 +285,7 @@ class AnalysisFileHandler(DefaultHandler):
     @property
     def save_path(self):
         # TODO: make this directory part of overall config
-        return os.path.expanduser('~/analysisstore_files')  
+        return os.path.expanduser(self.settings['file_directory'])  
     
     def post(self):
         database = self.settings['db']
@@ -305,7 +304,6 @@ class AnalysisFileHandler(DefaultHandler):
                 with open(full_fpath, "wb") as out:
                     # Make sure no executable whatsoever that might be insecure
                     out.write(xfile['body'])
-                print('Done writing file', full_fpath)
                 database.file_lookup.insert({'analysis_header': header, 'filename': filename})
                 database.file_lookup.create_index([('analysis_header', pymongo.DESCENDING)], unique=False)
             self.finish()
@@ -315,15 +313,12 @@ class AnalysisFileHandler(DefaultHandler):
     def get(self):
         database = self.settings['db']
         header=self.get_argument("header", None, True)
-        print(header)
         try:
             f_doc = next(database.file_lookup.find({'analysis_header': header}))
         except StopIteration:
             raise utils._compose_err_msg(500, 'No file saved for this header ')
         file_name = f_doc['filename']
-        print(file_name)
         _file_path = os.path.join(self.save_path, file_name)
-        print(_file_path)
         
         if not file_name or not os.path.exists(_file_path):
             raise utils._compose_err_msg(404, 'File does not exist on the server side')
