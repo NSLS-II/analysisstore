@@ -286,12 +286,12 @@ class AnalysisFileHandler(DefaultHandler):
     @property
     def save_path(self):
         # TODO: make this directory part of overall config
-        return os.path.expanduser('~/data/analysisstore_files')  
+        return os.path.expanduser('~/analysisstore_files')  
     
     def post(self):
         database = self.settings['db']
-        _header_info = ujson.loads(self.request.body.decode("utf-8"))
         files = self.request.files['files']
+        _header = str(self.request.arguments['header'])
         try:
             for xfile in files:
                 # get the default file name
@@ -305,8 +305,9 @@ class AnalysisFileHandler(DefaultHandler):
                 with open(filename, "wb") as out:
                     # Make sure no executable whatsoever that might be insecure
                     out.write(xfile['body'])
-                database.file_lookup.insert({'analysis_header': _header_info, 'filename': filename})
+                database.file_lookup.insert({'analysis_header': _header, 'filename': filename})
                 database.file_lookup.create_index([('analysis_header', pymongo.DESCENDING)], unique=False)
+            self.finish()
         except:
             raise utils._compose_err_msg(500, 'Something went wrong saving the file')
 

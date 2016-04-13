@@ -6,7 +6,6 @@ import uuid
 import six
 import time as ttime
 from requests.exceptions import ConnectionError
-from doct import Document
 from . import asutils
 
 
@@ -123,7 +122,9 @@ class AnalysisClient:
         # I discourage and limit file upload to one file per time bc I do not want people
         # abusing this feature. Bulk inserts is as simple as passing a list of files
         files = {'files': open(file, 'rb')}
-        r = requests.post(self.fref_url, files=files, data=ujson.dumps({'header': header}))
+        # no metadata allowed, use header to store image info or image itself
+        r = requests.post(self.fref_url, data={'header': self._doc_or_uid_to_uid(header)}, 
+                          files=files, stream=True)
         r.raise_for_status()
         
     def download_file(self, header):
@@ -140,10 +141,10 @@ class AnalysisClient:
         return local_filename # return the url to the local saved locally
 
     def update_analysis_header(self, query, update):
-        pass
+        raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')
 
     def update_analysis_tail(self, query, update):
-        pass
+        raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')
 
     def find_analysis_header(self, as_json=False, **kwargs):
         return asutils.get_document(url=self.aheader_url, doc_type='AnalysisHeader', 
@@ -152,7 +153,6 @@ class AnalysisClient:
     def find_analyis_tail(self, as_json=False, **kwargs):
         return asutils.get_document(url=self.atail_url, doc_type='AnalysisTail', 
                              as_json=as_json, contents=kwargs)
-
 
     def find_data_reference_header(self, as_json=False, **kwargs):
         return asutils.get_document(url=self.dref_header_url, doc_type='DataReferenceHeader', 
