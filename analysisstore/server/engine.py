@@ -90,7 +90,11 @@ class AnalysisHeaderHandler(DefaultHandler):
                                         m_str=query)
         else:
             utils.return2client(self, docs)
-
+    
+    def data_received(self, chunk):
+        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
+        pass
+    
     @tornado.web.asynchronous
     def post(self):
         database = self.settings['db']
@@ -162,6 +166,10 @@ class AnalysisTailHandler(DefaultHandler):
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
+            
+    def data_received(self, chunk):
+        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
+        pass
 
 
 class DataReferenceHeaderHandler(DefaultHandler):
@@ -212,7 +220,11 @@ class DataReferenceHeaderHandler(DefaultHandler):
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
-            
+    
+    def data_received(self, chunk):
+        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
+        pass
+
 class DataReferenceHandler(DefaultHandler):
     """Handler for event insert and query operations.
     Uses traditional RESTful lingo. get for querying and post for inserts
@@ -225,7 +237,6 @@ class DataReferenceHandler(DefaultHandler):
         safety net.
     """
     @tornado.web.asynchronous
-    @gen.coroutine
     def get(self):
         database = self.settings['db']
         query = utils.unpack_params(self)
@@ -236,7 +247,6 @@ class DataReferenceHandler(DefaultHandler):
             utils.return2client(self, docs)
 
     @tornado.web.asynchronous
-    @gen.coroutine
     def post(self):
         database = self.settings['db']
         data = ujson.loads(self.request.body.decode("utf-8"))
@@ -260,14 +270,16 @@ class DataReferenceHandler(DefaultHandler):
                 raise utils._compose_err_msg(500)
 
     @tornado.web.asynchronous
-    @gen.coroutine
     def put(self):
         raise utils._compose_err_msg(404, 'Data points cannot be updated')
 
     @tornado.web.asynchronous
-    @gen.coroutine
     def delete(self):
         raise utils._compose_err_msg(404)
+
+    def data_received(self, chunk):
+        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
+        pass
 
 class AnalysisFileHandler(DefaultHandler):
     """Provides user the ability to upload/retrieve data over the wire"""
@@ -324,3 +336,7 @@ class AnalysisFileHandler(DefaultHandler):
             except:
                 raise utils._compose_err_msg(404)
         raise utils._compose_err_msg(500)
+    
+    def data_received(self, chunk):
+        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
+        pass

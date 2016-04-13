@@ -6,6 +6,7 @@ import uuid
 import six
 import time as ttime
 from requests.exceptions import ConnectionError
+from doct import Document
 
 
 class AnalysisClient:
@@ -64,10 +65,7 @@ class AnalysisClient:
         if not isinstance(doc_or_uid, six.string_types):
             doc_or_uid = doc_or_uid['uid']
         return str(doc_or_uid)
-        
-    def _validate_data_headers(self):
-        pass
-    
+
     def connection_status(self):
         """Check connection status"""
         try:        
@@ -79,7 +77,7 @@ class AnalysisClient:
         
     def insert_analysis_header(self, uid=None, time=None, as_doc=False,
                                **kwargs):
-        
+        """Create the starting point of for an analysis stream"""
         payload = dict(uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
@@ -115,7 +113,6 @@ class AnalysisClient:
 
     def insert_data_reference(self,  data_header, uid=None, time=None, as_doc=False, 
                              **kwargs):
-        self._validate_data_headers()
         payload = dict(data_reference_header=self._doc_or_uid(data_header),
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
@@ -162,14 +159,42 @@ class AnalysisClient:
     def update_analysis_tail(self, query, update):
         pass
 
-    def find_analysis_header(self, **kwargs):
-        pass
+    def find_analysis_header(self, as_json=False, **kwargs):
+        r = requests.get(self.aheader_url, params=ujson.dumps(kwargs))
+        r.raise_for_status()
+        content = ujson.loads(r.text)
+        if as_json:
+            return r.text
+        else:        
+            for c in content:
+                yield Document('AnalysisHeader', c)
 
-    def find_analyis_tail(self, **kwargs):
-        pass
+    def find_analyis_tail(self, as_json=False, **kwargs):
+        r = requests.get(self.atail_url, params=ujson.dumps(kwargs))
+        r.raise_for_status()
+        content = ujson.loads(r.text)
+        if as_json:
+            return r.text
+        else:        
+            for c in content:
+                yield Document('AnalysisTail', c)
 
-    def find_data_reference_header(self, **kwargs):
-        pass
+    def find_data_reference_header(self, as_json=False, **kwargs):
+        r = requests.get(self.dref_header_url, params=ujson.dumps(kwargs))
+        r.raise_for_status()
+        content = ujson.loads(r.text)
+        if as_json:
+            return r.text
+        else:        
+            for c in content:
+                yield Document('DataReferenceHeader', c)
 
-    def find_data_reference(self, **kwargs):
-        pass
+    def find_data_reference(self, as_json=False, **kwargs):
+        r = requests.get(self.dref_url, params=ujson.dumps(kwargs))
+        r.raise_for_status()
+        content = ujson.loads(r.text)
+        if as_json:
+            return r.text
+        else:        
+            for c in content:
+                yield Document('DataReference', c)
