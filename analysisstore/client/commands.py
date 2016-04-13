@@ -129,7 +129,7 @@ class AnalysisClient:
         
     def download_file(self, header):
         header = self._doc_or_uid_to_uid(header)
-        r = requests.get(self.fref_url, params=ujson.dumps({'header': header}), stream=True)
+        r = requests.get(self.fref_url, params={'header': header}, stream=True)
         r.raise_for_status()
         r.headers['Content-Disposition'] # parse file name here
         # TODO: Get the name of the file from the server
