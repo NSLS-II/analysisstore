@@ -150,7 +150,7 @@ class AnalysisTailHandler(DefaultHandler):
         data = ujson.loads(self.request.body.decode("utf-8"))
         jsonschema.validate(data, utils.schemas['analysis_tail'])
         try:
-            result = database.analysis_header.insert(data)
+            result = database.analysis_tail.insert(data)
         except perr.PyMongoError:
             # TODO: When do we need compound indexing!?
             raise utils._compose_err_msg(500,
@@ -203,7 +203,7 @@ class DataReferenceHeaderHandler(DefaultHandler):
     def post(self):
         database = self.settings['db']
         data = ujson.loads(self.request.body.decode("utf-8"))
-        jsonschema.validate(data, utils.schemas['event_header'])
+        jsonschema.validate(data, utils.schemas['data_reference_header'])
         try:
             result = database.analysis_header.insert(data)
         except perr.PyMongoError:

@@ -88,10 +88,12 @@ class AnalysisClient:
         return payload
         
     def insert_analysis_tail(self, header, uid=None, time=None, as_doc=False, 
-                             **kwargs):
-        payload = dict(analysis_header=self._doc_or_uid(header),
+                             exit_status=None, **kwargs):
+        payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
                        uid=uid if uid else str(uuid.uuid4()), 
-                       time=time if time else ttime.time(), **kwargs)
+                       time=time if time else ttime.time(), 
+                       exit_status=exit_status if exit_status else "success",
+                       **kwargs)
         try:
             r = requests.post(self.atail_url, data=ujson.dumps(payload))
         except ConnectionError:
@@ -101,7 +103,7 @@ class AnalysisClient:
 
     def insert_data_reference_header(self, header, uid=None, time=None, as_doc=False, 
                              **kwargs):
-        payload = dict(analysis_header=self._doc_or_uid(header),
+        payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
         try:
