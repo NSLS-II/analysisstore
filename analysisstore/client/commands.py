@@ -7,6 +7,7 @@ import six
 import time as ttime
 from requests.exceptions import ConnectionError
 from doct import Document
+from . import asutils
 
 
 class AnalysisClient:
@@ -80,11 +81,7 @@ class AnalysisClient:
         """Create the starting point of for an analysis stream"""
         payload = dict(uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
-        try:
-            r = requests.post(self.aheader_url, data=ujson.dumps(payload), timeout=2.0)
-        except ConnectionError:
-            raise ConnectionError('No AnalysisStore server found')
-        r.raise_for_status() # this is for catching server side issue.
+        asutils.post_document(url=self.aheader_url, contents=payload)
         return payload
         
     def insert_analysis_tail(self, header, uid=None, time=None, as_doc=False, 
@@ -94,11 +91,7 @@ class AnalysisClient:
                        time=time if time else ttime.time(), 
                        exit_status=exit_status if exit_status else "success",
                        **kwargs)
-        try:
-            r = requests.post(self.atail_url, data=ujson.dumps(payload))
-        except ConnectionError:
-            raise ConnectionError('No AnalysisStore server found')
-        r.raise_for_status() # this is for catching server side issue.
+        asutils.post_document(url=self.atail_url, contents=payload)
         return payload
 
     def insert_data_reference_header(self, header, uid=None, time=None, as_doc=False, 
@@ -106,11 +99,7 @@ class AnalysisClient:
         payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
-        try:
-            r = requests.post(self.dref_header_url, data=ujson.dumps(payload))
-        except ConnectionError:
-            raise ConnectionError('No AnalysisStore server found')
-        r.raise_for_status() # this is for catching server side issue.
+        asutils.post_document(url=self.dref_header_url, contents=payload)
         return payload
 
     def insert_data_reference(self,  data_header, uid=None, time=None, as_doc=False, 
@@ -118,11 +107,7 @@ class AnalysisClient:
         payload = dict(data_reference_header=self._doc_or_uid(data_header),
                        uid=uid if uid else str(uuid.uuid4()), 
                        time=time if time else ttime.time(), **kwargs)
-        try:
-            r = requests.post(self.dref_url, data=ujson.dumps(payload))
-        except ConnectionError:
-            raise ConnectionError('No AnalysisStore server found')
-        r.raise_for_status() # this is for catching server side issue.
+        asutils.post_document(url=self.dref_url, contents=payload)
         return payload
 
     def insert_bulk_data_reference(self, data_header, data, chunk_size = 500, **kwargs):
@@ -131,8 +116,7 @@ class AnalysisClient:
         chunks = self.grouper(data, chunk_count)
         for c in chunks:
             payload = ujson.dumps(list(c))
-            r = requests.post(self.dref_url, data=payload)        
-        r.raise_for_status()
+            asutils.post_document(url=self.dref_url, contents=payload)        
 
     def upload_file(self, header, file):
         """Upload one file at a time"""
@@ -162,41 +146,18 @@ class AnalysisClient:
         pass
 
     def find_analysis_header(self, as_json=False, **kwargs):
-        r = requests.get(self.aheader_url, params=ujson.dumps(kwargs))
-        r.raise_for_status()
-        content = ujson.loads(r.text)
-        if as_json:
-            return r.text
-        else:        
-            for c in content:
-                yield Document('AnalysisHeader', c)
+        return asutils.get_document(url=self.aheader_url, doc_type='AnalysisHeader', 
+                             as_json=as_json, contents=kwargs)
 
     def find_analyis_tail(self, as_json=False, **kwargs):
-        r = requests.get(self.atail_url, params=ujson.dumps(kwargs))
-        r.raise_for_status()
-        content = ujson.loads(r.text)
-        if as_json:
-            return r.text
-        else:        
-            for c in content:
-                yield Document('AnalysisTail', c)
+        return asutils.get_document(url=self.atail_url, doc_type='AnalysisTail', 
+                             as_json=as_json, contents=kwargs)
+
 
     def find_data_reference_header(self, as_json=False, **kwargs):
-        r = requests.get(self.dref_header_url, params=ujson.dumps(kwargs))
-        r.raise_for_status()
-        content = ujson.loads(r.text)
-        if as_json:
-            return r.text
-        else:        
-            for c in content:
-                yield Document('DataReferenceHeader', c)
+        return asutils.get_document(url=self.dref_header_url, doc_type='DataReferenceHeader', 
+                             as_json=as_json, contents=kwargs)
 
     def find_data_reference(self, as_json=False, **kwargs):
-        r = requests.get(self.dref_url, params=ujson.dumps(kwargs))
-        r.raise_for_status()
-        content = ujson.loads(r.text)
-        if as_json:
-            return r.text
-        else:        
-            for c in content:
-                yield Document('DataReference', c)
+        return asutils.get_document(url=self.dref_url, doc_type='DataReference', 
+                             as_json=as_json, contents=kwargs)
