@@ -126,19 +126,27 @@ class AnalysisClient:
         r = requests.post(self.fref_url, data={'header': self._doc_or_uid_to_uid(header)}, 
                           files=files, stream=True)
         r.raise_for_status()
-        
-    def download_file(self, header):
+    
+    def get_file_names(self, header):
+        """Returns a set of file names provided header information"""
         header = self._doc_or_uid_to_uid(header)
-        r = requests.get(self.fref_url, params={'header': header}, stream=True)
+        r = requests.get(self.fref_url, params={'header': header})
+        r.raise_for_status()
+        content = ujson.loads(r.text)
+        yield content
+        
+    def download_file(self, header, filename):
+        header = self._doc_or_uid_to_uid(header)
+        r = requests.get(self.fref_url, params={'header': header, 
+                                                'file_name': filename}, stream=True)
         r.raise_for_status()
         r.headers['Content-Disposition'] # parse file name here
         # TODO: Get the name of the file from the server
-        local_filename = 'my_tmp_name'
-        with open(local_filename, 'wb') as f:
+        with open(filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=4096): 
                 if chunk: # filter out keep-alive new chunks
                     f.write(chunk)
-        return local_filename # return the url to the local saved locally
+        return filename # return the url to the local saved locally
 
     def update_analysis_header(self, query, update):
         raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')

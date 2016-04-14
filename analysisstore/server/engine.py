@@ -287,7 +287,15 @@ class AnalysisFileHandler(DefaultHandler):
         # TODO: make this directory part of overall config
         return os.path.expanduser(self.settings['file_directory'])  
     
+    def manipulate_fname(self, file):
+        index = file.rfind(".")
+        filename = file[:index].replace(".", "") + file[index:]
+        print(filename)
+        filename = filename.replace("/", "")
+        return filename
+
     def post(self):
+        # TODO: Check if this file exists
         database = self.settings['db']
         files = self.request.files['files']
         header=self.get_argument("header", None, True)
@@ -296,11 +304,14 @@ class AnalysisFileHandler(DefaultHandler):
                 # get the default file name
                 file = xfile['filename']
                 #refine evil characters that might mess with file directory of the server
-                index = file.rfind(".")
-                filename = file[:index].replace(".", "") + str(time.time()).replace(".", "") + file[index:]
-                filename = filename.replace("/", "")
+                filename = self.manipulate_fname(file)
                 # save the file in the upload folder
-                full_fpath = os.path.join(self.save_path, filename)                
+                _dir = "{}/{}".format(self.save_path, header)
+                try:
+                    os.mkdir(_dir, 755)
+                except FileExistsError:
+                    pass
+                full_fpath = os.path.join(_dir, filename)                
                 with open(full_fpath, "wb") as out:
                     # Make sure no executable whatsoever that might be insecure
                     out.write(xfile['body'])
@@ -313,31 +324,40 @@ class AnalysisFileHandler(DefaultHandler):
     def get(self):
         database = self.settings['db']
         header=self.get_argument("header", None, True)
-        try:
-            f_doc = next(database.file_lookup.find({'analysis_header': header}))
-        except StopIteration:
-            raise utils._compose_err_msg(500, 'No file saved for this header ')
-        file_name = f_doc['filename']
-        _file_path = os.path.join(self.save_path, file_name)
-        
-        if not file_name or not os.path.exists(_file_path):
-            raise utils._compose_err_msg(404, 'File does not exist on the server side')
-        self.set_header('Content-Type', 'application/force-download')
-        self.set_header('Content-Disposition', 'attachment; filename=%s' % file_name)    
-        with open(_file_path, "rb") as f:
+        file_name = self.get_argument("file_name", None, True)
+        if file_name:
             try:
-                while True:
-                    _buffer = f.read(4096)
-                    if _buffer:
-                        self.write(_buffer)
-                    else:
-                        f.close()
-                        self.finish()
-                        return
-            except:
-                raise utils._compose_err_msg(404)
-        raise utils._compose_err_msg(500)
-    
+                f_doc = next(database.file_lookup.find({'analysis_header': header}))
+            except StopIteration:
+                raise utils._compose_err_msg(500, 'No file saved for this header ')
+            file_name = f_doc['filename']
+            _dir = "{}/{}".format(self.save_path, header) 
+            _file_path = os.path.join(_dir, file_name)
+            if not file_name or not os.path.exists(_file_path):
+                raise utils._compose_err_msg(404, 'File does not exist on the server side')
+            self.set_header('Content-Type', 'application/force-download')
+            self.set_header('Content-Disposition', 'attachment; filename=%s' % file_name)    
+            with open(_file_path, "rb") as f:
+                try:
+                    while True:
+                        _buffer = f.read(4096)
+                        if _buffer:
+                            self.write(_buffer)
+                        else:
+                            f.close()
+                            self.finish()
+                            return
+                except:
+                    raise utils._compose_err_msg(404)
+            raise utils._compose_err_msg(500)
+        else:
+            f_list = []
+            f_doc = database.file_lookup.find({'analysis_header': header})
+            for f in f_doc:
+                f_list.append(f['filename'])
+            print(f_list)
+            self.finish(ujson.dumps(f_list))
+            
     def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
