@@ -19,7 +19,8 @@ for name, filename in SCHEMA_NAMES.items():
         schemas[name] = ujson.load(fin)
 
 def _compose_err_msg(code, status, m_str=''):
-    return tornado.web.HTTPError(code, status + str(m_str))
+    reason = status + str(m_str)
+    return tornado.web.HTTPError(code, reason=reason )
 
 def unpack_params(handler):
     """Unpacks the queries from the body of the header

@@ -70,6 +70,7 @@ class AnalysisHeaderHandler(DefaultHandler):
         safety net.
     """
     @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
         database = self.settings['db']
         query = utils.unpack_params(self)
@@ -310,13 +311,20 @@ class AnalysisFileHandler(DefaultHandler):
                 try:
                     os.mkdir(_dir, 755)
                 except FileExistsError:
-                    pass
+                    pass #neglect if header dir already created
+                
+                filenames = list(database.file_lookup.find({'analysis_header': header}).distinct('filename'))
+                print(filenames)
+                if filename in filenames:
+                    raise utils._compose_err_msg(500, status='File already exists for header ', 
+                                                 m_str=header)
                 full_fpath = os.path.join(_dir, filename)                
                 with open(full_fpath, "wb") as out:
                     # Make sure no executable whatsoever that might be insecure
                     out.write(xfile['body'])
                 database.file_lookup.insert({'analysis_header': header, 'filename': filename})
-                database.file_lookup.create_index([('analysis_header', pymongo.DESCENDING)], unique=False)
+                database.file_lookup.create_index([('analysis_header', pymongo.DESCENDING),
+                                                   ('filename', pymongo.DESCENDING)], unique=False)
             self.finish()
         except:
             raise utils._compose_err_msg(500, 'Something went wrong saving the file')
@@ -324,19 +332,20 @@ class AnalysisFileHandler(DefaultHandler):
     def get(self):
         database = self.settings['db']
         header=self.get_argument("header", None, True)
-        file_name = self.get_argument("file_name", None, True)
-        if file_name:
+        filename = self.get_argument("filename", None, True)
+        print(filename)
+        if filename:
             try:
-                f_doc = next(database.file_lookup.find({'analysis_header': header}))
+                f_doc = next(database.file_lookup.find({'analysis_header': header,
+                                                        'filename': filename}))
             except StopIteration:
-                raise utils._compose_err_msg(500, 'No file saved for this header ')
-            file_name = f_doc['filename']
+                raise utils._compose_err_msg(500, 'No such file saved for this header ')
+            filename = f_doc['filename']
             _dir = "{}/{}".format(self.save_path, header) 
-            _file_path = os.path.join(_dir, file_name)
-            if not file_name or not os.path.exists(_file_path):
-                raise utils._compose_err_msg(404, 'File does not exist on the server side')
-            self.set_header('Content-Type', 'application/force-download')
-            self.set_header('Content-Disposition', 'attachment; filename=%s' % file_name)    
+            print(_dir)
+            _file_path = os.path.join(_dir, filename)
+            if not filename or not os.path.exists(_file_path):
+                raise utils._compose_err_msg(404, 'File does not exist on the server side')    
             with open(_file_path, "rb") as f:
                 try:
                     while True:

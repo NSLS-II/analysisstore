@@ -138,9 +138,9 @@ class AnalysisClient:
     def download_file(self, header, filename):
         header = self._doc_or_uid_to_uid(header)
         r = requests.get(self.fref_url, params={'header': header, 
-                                                'file_name': filename}, stream=True)
+                                                'filename': filename}, stream=True)
         r.raise_for_status()
-        r.headers['Content-Disposition'] # parse file name here
+#         r.headers['Content-Disposition'] # parse file name here
         # TODO: Get the name of the file from the server
         with open(filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=4096): 
