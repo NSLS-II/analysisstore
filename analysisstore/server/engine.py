@@ -39,7 +39,8 @@ def db_connect(database, host, port):
 
 
 class DefaultHandler(tornado.web.RequestHandler):
-    """DefaultHandler which takes care of CORS for @hslepicka js gui. Does not hurt, one day we might need this"""
+    """DefaultHandler which takes care of CORS for @hslepicka js gui. 
+    Does not hurt, one day we might need this"""
     @tornado.web.asynchronous
     def set_default_headers(self):
         self.set_header('Access-Control-Allow-Origin', '*')

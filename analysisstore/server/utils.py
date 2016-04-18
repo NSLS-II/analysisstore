@@ -73,4 +73,4 @@ def return2client(handler, payload):
             except StopIteration:
                 break
         handler.write(']')
-    handler.finish()
+    handler.finish()                                                                                                                                                                 

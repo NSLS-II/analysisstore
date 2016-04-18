@@ -8,11 +8,19 @@ import time as ttime
 from requests.exceptions import ConnectionError
 from . import asutils
 
-
 class AnalysisClient:
     """Client used to pass messages between analysisstore server and apps"""
     def __init__(self, host='localhost:8999'):
         self.host = host #no need for port, provide one address
+        self._insert_dict = {'analysis_header': self.insert_analysis_header,
+                             'analysis_tail': self.insert_analysis_tail,
+                             'data_reference_header': self.insert_data_reference_header,
+                             'data_reference': self.insert_data_reference,
+                             'bulk_data_reference': self.insert_bulk_data_reference}
+        self._find_dict = {'analysis_header': self.find_analysis_header,
+                           'analysis_tail': self.find_analysis_tail,
+                           'data_reference_header': self.find_data_reference_header,
+                           'data_reference': self.find_data_reference}
     
     @property 
     def _host_url(self):
@@ -135,17 +143,19 @@ class AnalysisClient:
         content = ujson.loads(r.text)
         yield content
         
-    def download_file(self, header, filename):
+    def download_file(self, header, filename, display=False):
         header = self._doc_or_uid_to_uid(header)
         r = requests.get(self.fref_url, params={'header': header, 
                                                 'filename': filename}, stream=True)
         r.raise_for_status()
-#         r.headers['Content-Disposition'] # parse file name here
-        # TODO: Get the name of the file from the server
         with open(filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=4096): 
-                if chunk: # filter out keep-alive new chunks
+                if chunk:
                     f.write(chunk)
+        if display:
+            from PIL import Image
+            image = Image.open(filename)
+            return image
         return filename # return the url to the local saved locally
 
     def update_analysis_header(self, query, update):
@@ -158,7 +168,7 @@ class AnalysisClient:
         return asutils.get_document(url=self.aheader_url, doc_type='AnalysisHeader', 
                              as_json=as_json, contents=kwargs)
 
-    def find_analyis_tail(self, as_json=False, **kwargs):
+    def find_analysis_tail(self, as_json=False, **kwargs):
         return asutils.get_document(url=self.atail_url, doc_type='AnalysisTail', 
                              as_json=as_json, contents=kwargs)
 
@@ -169,3 +179,10 @@ class AnalysisClient:
     def find_data_reference(self, as_json=False, **kwargs):
         return asutils.get_document(url=self.dref_url, doc_type='DataReference', 
                              as_json=as_json, contents=kwargs)
+    
+    def insert(self, doc_type, **kwargs):
+        return self._insert_dict[doc_type](**kwargs)
+        
+    def find(self, doc_type, **kwargs):
+        return self._find_dict[doc_type](**kwargs)
+    
