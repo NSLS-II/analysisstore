@@ -8,6 +8,10 @@ import time as ttime
 from requests.exceptions import ConnectionError
 from . import asutils
 
+# TODO: Return uids from the server RequestHandler.post()
+# TODO: Defaults must filled on the server side
+
+
 class AnalysisClient:
     """Client used to pass messages between analysisstore server and apps"""
     def __init__(self, host='localhost:8999'):
@@ -24,7 +28,7 @@ class AnalysisClient:
     
     @property 
     def _host_url(self):
-        """URL to the"""
+        """URL to the tornado instance"""
         return 'http://{}/'.format(self.host)
     
     @property
@@ -61,6 +65,7 @@ class AnalysisClient:
     def _doc_or_uid_to_uid(self, doc_or_uid):
         """Given Document or uid return the uid
         Parameters
+
         ----------
         doc_or_uid : dict or str
             If str, then assume uid and pass through, if not, return
@@ -75,7 +80,18 @@ class AnalysisClient:
         return str(doc_or_uid)
 
     def connection_status(self):
-        """Check connection status"""
+        """Returns the connection status
+
+        Returns
+        -------
+        bool
+            Returns True if connected
+
+        Raises
+        -------
+        tornado.web.HTTPError
+            Raises 404 if no server to be found
+        """
         try:        
             r = requests.get(self._host_url + 'is_connected', timeout=0.1)
         except ConnectionError:
@@ -83,41 +99,88 @@ class AnalysisClient:
         r.raise_for_status()
         return True    
         
-    def insert_analysis_header(self, uid=None, time=None, as_doc=False,
-                               **kwargs):
-        """Create the starting point of for an analysis stream"""
-        payload = dict(uid=uid if uid else str(uuid.uuid4()), 
-                       time=time if time else ttime.time(), **kwargs)
-        asutils.post_document(url=self.aheader_url, contents=payload)
-        return payload
+    def insert_analysis_header(self, uid=None, time=None, **kwargs):
+        """
+        Create the entry point for analysis.
+
+        Parameters
+        ----------
+        uid: str; optional
+            Unique identifier for analysis_header document
+        time: float; optional
+            Time entry created. If not filled, server assigns a timestamp
+        kwargs: dict
+            Additional fields.
+
+        Returns
+        -------
+        res: str
+            uid of the document entered
+        """
+        payload = dict(uid=uid, time=time, **kwargs)
+        res = asutils.post_document(url=self.aheader_url, contents=payload)
+        return res
         
-    def insert_analysis_tail(self, header, uid=None, time=None, as_doc=False, 
-                             exit_status=None, **kwargs):
+    def insert_analysis_tail(self, header, uid=None, time=None, exit_status=None, **kwargs):
+        """
+        Create analysis_tail document
+
+        Parameters
+        ----------
+        header: doct.Document or uid
+            analysis_header document this tail points to. Foreign key to the analysis_header.
+        uid: str; optional
+            Unique identifier for analysis_tail document. Server fills up this field if not provided
+        time: float; optional
+            Time document was created. Server fills up this field if not provided
+        exit_status: str
+            The status analysis stopped
+        kwargs: dict
+            Additional fields.
+        Returns
+        -------
+        res: str
+            uid of the inserted document
+        """
         payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
-                       uid=uid if uid else str(uuid.uuid4()), 
-                       time=time if time else ttime.time(), 
+                       uid=uid, time=time ,
                        exit_status=exit_status if exit_status else "success",
                        **kwargs)
-        asutils.post_document(url=self.atail_url, contents=payload)
-        return payload
+        res = asutils.post_document(url=self.atail_url, contents=payload)
+        return res
 
-    def insert_data_reference_header(self, header, uid=None, time=None, as_doc=False, 
-                             **kwargs):
+    def insert_data_reference_header(self, header, uid=None, time=None, **kwargs):
+        """
+        Create data reference header document
+        Parameters
+        ----------
+        header: doct.Document or uid
+            analysis_header document this tail points to. Foreign key to the analysis_header.
+        uid: str; optional
+            Unique identifier for data_reference_header document. Server fills up this field if not provided
+        time: float; optional
+            Time document was created. Server fills up this field if not provided
+        kwargs: dict
+            Additional fields
+
+        Returns
+        -------
+        res: str
+            uid of the inserted document
+        """
         payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
-                       uid=uid if uid else str(uuid.uuid4()), 
-                       time=time if time else ttime.time(), **kwargs)
-        asutils.post_document(url=self.dref_header_url, contents=payload)
-        return payload
+                       uid=uid, time=time, **kwargs)
+        res = asutils.post_document(url=self.dref_header_url, contents=payload)
+        return res
 
-    def insert_data_reference(self,  data_header, uid=None, time=None, as_doc=False, 
-                             **kwargs):
+    def insert_data_reference(self,  data_header, uid=None, time=None, **kwargs):
         payload = dict(data_reference_header=self._doc_or_uid(data_header),
-                       uid=uid if uid else str(uuid.uuid4()), 
-                       time=time if time else ttime.time(), **kwargs)
-        asutils.post_document(url=self.dref_url, contents=payload)
-        return payload
+                       uid=uid, time=time, **kwargs)
+        res = asutils.post_document(url=self.dref_url, contents=payload)
+        return res
 
     def insert_bulk_data_reference(self, data_header, data, chunk_size = 500, **kwargs):
+        # TODO: Data reference could be links to files as @klauer and I agree
         data_len = len(data)
         chunk_count = data_len // chunk_size + bool(data_len % chunk_size)
         chunks = self.grouper(data, chunk_count)

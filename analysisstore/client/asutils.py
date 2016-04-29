@@ -18,3 +18,4 @@ def post_document(url, contents):
     except ConnectionError:
         raise ConnectionError('No AnalysisStore server found')
     r.raise_for_status() # this is for catching server side issue.
+    return r.json()
