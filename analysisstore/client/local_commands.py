@@ -1,6 +1,7 @@
 from .asutils import Document
 import time as ttime
 import uuid
+from .conf import top_dir
 from .asutils import doc_or_uid_to_uid, read_from_json, write_to_json
 from os.url import expanduser
 
@@ -8,7 +9,7 @@ from os.url import expanduser
 
 
 class LocalAnalysisClient:
-    def __init__(self, top_dir):
+    def __init__(self, top_dir=top_dir):
         self.top_dir = expanduser(top_dir)
         self.aheader_list = read_from_json(self._aheader_url)
         self.aheader_tail = read_from_json(self._atail_url)
