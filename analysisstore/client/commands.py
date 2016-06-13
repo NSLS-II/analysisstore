@@ -2,7 +2,7 @@ from __future__ import (absolute_import, unicode_literals, print_function)
 import requests
 import ujson
 from itertools import zip_longest
-import uuid
+from .conf import host, port
 import six
 import time as ttime
 from requests.exceptions import ConnectionError
@@ -14,8 +14,9 @@ from . import asutils
 
 class AnalysisClient:
     """Client used to pass messages between analysisstore server and apps"""
-    def __init__(self, host='localhost:8999'):
-        self.host = host #no need for port, provide one address
+    def __init__(self, host=host, port=port):
+        self.host = host
+        self.port = port
         self._insert_dict = {'analysis_header': self.insert_analysis_header,
                              'analysis_tail': self.insert_analysis_tail,
                              'data_reference_header': self.insert_data_reference_header,
@@ -29,7 +30,7 @@ class AnalysisClient:
     @property 
     def _host_url(self):
         """URL to the tornado instance"""
-        return 'http://{}/'.format(self.host)
+        return 'http://{}:{}/'.format(self.host, self.port)
     
     @property
     def aheader_url(self):
