@@ -47,6 +47,8 @@ def start_server(config=None):
                             help='port to use to talk to mongo')
         parser.add_argument('--service-port', dest='service_port', type=int,
                             help='port listen to for clients')
+        parser.add_argument('--file-directory', dest='file_directory', type=str,
+                            help='Directory for file to be saved')
         parser.add_argument('--log_file_prefix', dest='log_file_prefix', type=str,
                             help='Log file name that tornado logs are dumped')
         args = parser.parse_args()
@@ -60,6 +62,8 @@ def start_server(config=None):
             config['mongo_port'] = args.mongo_port
         if args.service_port is not None:
             config['service_port'] = args.service_port
+        if args.file_directory is not None:
+            config['file_directory'] = args.file_directory
         if not config:
             raise KeyError('No configuration provided. Provide config file or command line args')
     tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
@@ -74,7 +78,7 @@ def start_server(config=None):
                                           (r'/analysis_tail', AnalysisTailHandler),
                                           (r'/file', AnalysisFileHandler),
                                           (r'/is_connected', ConnStatHandler)
-                                          ], db=db)
+                                          ], db=db, file_directory=config['file_directory'])
     print('Starting Analysisstore service with configuration ', config)
     application.listen(config['service_port'])
     tornado.ioloop.IOLoop.current().start()
