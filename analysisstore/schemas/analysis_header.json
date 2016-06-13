@@ -4,6 +4,11 @@
             "type": ["object"],
             "description": "Meta-data regrading slow-chaning configuration, such as equipment specifications and calibration"
         },
+	"provenance": {
+            "type": ["object"],
+            "description": "Meta-data regrading set of tasks that generated this analysis data"
+        },
+
         "project": {
             "type": "string",
             "description": "Name of project that this run is part of"
@@ -39,7 +44,8 @@
     },
     "required": [
         "uid",
-        "time"
+        "time",
+	"provenance"
      ],
     "type": "object",
     "description": "Header of the analysis data. No real data in this header but metadata that allows us locate data"
