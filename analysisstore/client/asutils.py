@@ -10,7 +10,7 @@ def get_document(url, doc_type, as_json, contents):
     content = ujson.loads(r.text)
     if as_json:
         return r.text
-    else:        
+    else:
         for c in content:
             yield Document(doc_type, c)
 

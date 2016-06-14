@@ -5,14 +5,73 @@ from .conf import top_dir
 from .asutils import doc_or_uid_to_uid, read_from_json, write_to_json
 from os.url import expanduser
 
-# TODO: Import configuration
+def _find_local(fname, qparams, as_doct=False):
+    """Find a document created using the local framework
+    Parameters
+    -----------
+    fname: str
+        Name of the query should be run
+    qparams: dict
+        Query parameters. Similar to online query methods
+
+    Yields
+    ------------
+    c: doct.Document, StopIteration
+        Result of the query if found
+
+    """
+    res_list = []
+    try:
+        with open(fname, 'r') as fp:
+            local_payload = ujson.load(fp)
+        qobj = mongoquery.Query(qparams)
+        for i in local_payload:
+            if qobj.match(i):
+                res_list.append(i)
+    except FileNotFoundError:
+        raise RuntimeWarning('Local file {} does not exist'.format(fname))
+    if as_doct:
+        for c in res_list:
+            yield Document(fname.split('.')[0], c)
+    else:
+        for c in res_list:
+            yield c
+
+
+def _update_local(fname, qparams, replacement):
+    """Update a document created using the local framework
+    Parameters
+    -----------
+    fname: str
+        Name of the query should be run
+    qparams: dict
+        Query parameters. Similar to online query methods
+    replacement: dict
+        Fields/value pair to be updated. Beware of disallowed fields
+        such as time and uid
+    """
+    try:
+        with open(fname, 'r') as fp:
+            local_payload = ujson.load(fp)
+        qobj = mongoquery.Query(qparams)
+        for _sample in local_payload:
+            try:
+                if qobj.match(_sample):
+                    for k, v in replacement.items():
+                        _sample[k] = v
+            except mongoquery.QueryError:
+                pass
+        with open(fname, 'w') as fp:
+            ujson.dump(local_payload, fp)
+    except FileNotFoundError:
+        raise RuntimeWarning('Local file {} does not exist'.format(fname))
 
 
 class LocalAnalysisClient:
     def __init__(self, top_dir=top_dir):
         self.top_dir = expanduser(top_dir)
         self.aheader_list = read_from_json(self._aheader_url)
-        self.aheader_tail = read_from_json(self._atail_url)
+        self.atail_list = read_from_json(self._atail_url)
         self.dref_header_list = read_from_json(self._dref_header_url)
         self.dref_list = read_from_json(self.dref_list)
 
@@ -32,99 +91,33 @@ class LocalAnalysisClient:
     def _dref_url(self):
         return self.top_dir + 'dref'
 
-    def insert(self, name, doc):
-        raise NotImplementedError()
-
-    def find(self, name, query):
-        raise NotImplementedError()
-
-    def update(self, name, query, replacement):
-        raise NotImplementedError()
-
-    def _insert_analysis_header(self, doc):
-        if 'container' in doc:
-            doc['container'] = doc_or_uid_to_uid(doc['container'])
+    def insert_analysis_header(self, uid, time, provenance, **kwargs):
+        if 'container' in kwargs:
+            kwargs['container'] = doc_or_uid_to_uid(kwargs['container'])
+        doc = dict(uid=uid, time=time, provenance=provenance, **kwargs)
         self.aheader_list.append(doc)
-        write_to_json(self.aheader_list, self.aheader_list)
+        with open(self._aheader_url, 'w+') as fp:
+            ujson.dump(self.aheader_list, fp)
         return doc
 
-    def _insert_analysis_tail(self, doc):
-        pass
+    def insert_analysis_tail(self, analysis_header, time, uid, **kwargs):
+        doc = dict(uid=uid, time=time, header=analysis_header, **kwargs)
+        self.atail_list.append(doc)
+        with open(self._atail_url, 'w+') as fp:
+            ujson.dump(self.atail_list, fp)
+        return uid
 
-    def _insert_dref_header(self, doc):
-        pass
+    def insert_dref_header(self, analysis_header, time, uid, data_keys, **kwargs):
+        doc = dict(uid=uid, time=time, header=analysis_header,
+                   data_keys=data_keys, **kwargs)
+        self.dref_header_list.append(doc)
+        with open(self._dref_header_url, 'w+') as fp:
+            ujson.dump(self.dref_header_list, fp)
+        return uid
 
-    def _insert_dref(self, doc):
-        pass
-
-
-
-from metadatastore.mds import MDS, MDSRO
-import metadatastore.conf
-import doct
-from collections import deque
-from tqdm import tqdm
-
-NEW_DATABASE = 'csx_dump'
-OLD_DATABASE = 'csx_migrated'
-
-def compare(o, n):
-    try:
-        assert o['uid'] == n['uid']
-        if 'reason' in o and o['reason'] == '':
-            d_o = dict(o)
-            del d_o['reason']
-            o = doct.Document('RunStop', d_o)
-            print('Caught it')
-        assert o == n
-    except AssertionError:
-        print(o)
-        print(n)
-        raise
-
-old_config = dict(database=OLD_DATABASE,
-                  host='localhost',
-                  port=27017,
-                  timezone='US/Eastern')
-new_config = old_config.copy()
-
-new_config['database'] = NEW_DATABASE
-
-old = MDSRO(version=0, config=old_config)
-new = MDS(version=1, config=new_config)
-
-total = old._runstart_col.find().count()
-old_starts = tqdm(old.find_run_starts(), unit='start docs', total=total,
-                  leave=True)
-new_starts = new.find_run_starts()
-for o, n in zip(old_starts, new_starts):
-    compare(o, n)
-
-total = old._runstop_col.find().count()
-old_stops = tqdm(old.find_run_stops(), unit='stop docs', total=total)
-new_stops = new.find_run_stops()
-for o, n in zip(old_stops, new_stops):
-    compare(o, n)
-
-descs = deque()
-counts = deque()
-total = old._descriptor_col.find().count()
-old_descs = tqdm(old.find_descriptors(), unit='descriptors', total=total)
-new_descs = new.find_descriptors()
-for o, n in zip(old_descs, new_descs):
-    d_raw = next(old._descriptor_col.find({'uid': o['uid']}))
-    num_events = old._event_col.find({'descriptor_id': d_raw['_id']}).count()
-    assert o == n
-    descs.append(o)
-    counts.append(num_events)
-
-total = sum(counts)
-with tqdm(total=total, unit='events') as pbar:
-    for desc, num_events in zip(descs, counts):
-        old_events = old.get_events_generator(descriptor=desc,
-                                              convert_arrays=False)
-        new_events = new.get_events_generator(descriptor=desc,
-                                              convert_arrays=False)
-        for ev in zip(old_events, new_events):
-            assert o == n
-        pbar.update(num_events)
+    def insert_dref(self, time, uid, dref_header):
+        doc = dict(uid=uid, time=time, dref_header=dref_header)
+        self.dref_list.append(doc)
+        with open(self._dref_url, 'w+') as fp:
+            ujson.dump(self.dref_list, fp)
+        return uid
