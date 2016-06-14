@@ -1,9 +1,12 @@
-from .asutils import Document
+from doct import Document
+import ujson
 import time as ttime
 import uuid
-from .conf import top_dir
-from .asutils import doc_or_uid_to_uid, read_from_json, write_to_json
-from os.url import expanduser
+from analysisstore.client.conf import top_dir
+from analysisstore.client.asutils import doc_or_uid_to_uid, read_from_json, write_to_json
+from os.path import expanduser
+import mongoquery
+
 
 def _find_local(fname, qparams, as_doct=False):
     """Find a document created using the local framework
@@ -73,30 +76,30 @@ class LocalAnalysisClient:
         self.aheader_list = read_from_json(self._aheader_url)
         self.atail_list = read_from_json(self._atail_url)
         self.dref_header_list = read_from_json(self._dref_header_url)
-        self.dref_list = read_from_json(self.dref_list)
+        self.dref_list = read_from_json(self._dref_url)
 
     @property
     def _aheader_url(self):
-        return self.top_dir + 'analysis_header'
+        return self.top_dir + '/analysis_header.json'
 
     @property
     def _atail_url(self):
-        return self.top_dir + 'analysis_tail'
+        return self.top_dir + '/analysis_tail.json'
 
     @property
     def _dref_header_url(self):
-        return self.top_dir + 'dref_header'
+        return self.top_dir + '/dref_header.json'
 
     @property
     def _dref_url(self):
-        return self.top_dir + 'dref'
+        return self.top_dir + '/dref.json'
 
     def insert_analysis_header(self, uid, time, provenance, **kwargs):
         if 'container' in kwargs:
             kwargs['container'] = doc_or_uid_to_uid(kwargs['container'])
         doc = dict(uid=uid, time=time, provenance=provenance, **kwargs)
         self.aheader_list.append(doc)
-        with open(self._aheader_url, 'w+') as fp:
+        with open(self._aheader_url, 'a+') as fp:
             ujson.dump(self.aheader_list, fp)
         return doc
 
@@ -121,3 +124,17 @@ class LocalAnalysisClient:
         with open(self._dref_url, 'w+') as fp:
             ujson.dump(self.dref_list, fp)
         return uid
+
+    def find_analysis_header(self, **kwargs):
+        return _find_local(self._aheader_url, kwargs)
+
+    def find_analysis_tail(self, **kwargs):
+        return _find_local(self._atail_url, kwargs)
+
+    def find_data_ref_header(self, **kwargs):
+        return _find_local(self._dref_header_url, kwargs)
+
+    def find_data_reference(self, **kwargs):
+        return _find_local(self._dref_url, kwargs)
+
+

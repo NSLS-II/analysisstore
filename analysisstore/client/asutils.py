@@ -30,9 +30,11 @@ def write_to_json(payload, filename):
 
 
 def read_from_json(filename):
-    with open(filename, 'r') as fp:
-        return ujson.load(fp)
-
+    try:
+        with open(filename, 'r') as fp:
+            return ujson.load(fp)
+    except (FileNotFoundError, ValueError):
+        return []
 
 def doc_or_uid_to_uid(doc_or_uid):
     """Given Document or uid return the uid
