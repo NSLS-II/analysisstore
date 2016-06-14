@@ -6,6 +6,7 @@ from analysisstore.client.conf import top_dir
 from analysisstore.client.asutils import doc_or_uid_to_uid, read_from_json, write_to_json
 from os.path import expanduser
 import mongoquery
+import json
 
 
 def _find_local(fname, qparams, as_doct=False):
@@ -25,8 +26,9 @@ def _find_local(fname, qparams, as_doct=False):
     """
     res_list = []
     try:
-        with open(fname, 'r') as fp:
-            local_payload = ujson.load(fp)
+        with open(fname, 'r+') as fp:
+            print(fname)
+            local_payload = json.load(fp)
         qobj = mongoquery.Query(qparams)
         for i in local_payload:
             if qobj.match(i):
@@ -99,7 +101,7 @@ class LocalAnalysisClient:
             kwargs['container'] = doc_or_uid_to_uid(kwargs['container'])
         doc = dict(uid=uid, time=time, provenance=provenance, **kwargs)
         self.aheader_list.append(doc)
-        with open(self._aheader_url, 'a+') as fp:
+        with open(self._aheader_url, 'w+') as fp:
             ujson.dump(self.aheader_list, fp)
         return doc
 
