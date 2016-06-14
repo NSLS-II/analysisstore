@@ -1,4 +1,5 @@
 import ujson
+import json
 import requests
 from doct import Document
 import six
@@ -26,13 +27,13 @@ def post_document(url, contents):
 
 def write_to_json(payload, filename):
     with open(filename, 'w+') as fp:
-        ujson.dump(payload, fp)
+        json.dump(payload, fp)
 
 
 def read_from_json(filename):
     try:
         with open(filename, 'r') as fp:
-            return ujson.load(fp)
+            return json.load(fp)
     except (FileNotFoundError, ValueError):
         return []
 

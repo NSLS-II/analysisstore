@@ -1,5 +1,4 @@
 from doct import Document
-import ujson
 import time as ttime
 import uuid
 from analysisstore.client.conf import top_dir
@@ -57,7 +56,7 @@ def _update_local(fname, qparams, replacement):
     """
     try:
         with open(fname, 'r') as fp:
-            local_payload = ujson.load(fp)
+            local_payload = json.load(fp)
         qobj = mongoquery.Query(qparams)
         for _sample in local_payload:
             try:
@@ -67,7 +66,7 @@ def _update_local(fname, qparams, replacement):
             except mongoquery.QueryError:
                 pass
         with open(fname, 'w') as fp:
-            ujson.dump(local_payload, fp)
+            json.dump(local_payload, fp)
     except FileNotFoundError:
         raise RuntimeWarning('Local file {} does not exist'.format(fname))
 
@@ -102,14 +101,14 @@ class LocalAnalysisClient:
         doc = dict(uid=uid, time=time, provenance=provenance, **kwargs)
         self.aheader_list.append(doc)
         with open(self._aheader_url, 'w+') as fp:
-            ujson.dump(self.aheader_list, fp)
+            json.dump(self.aheader_list, fp)
         return doc
 
     def insert_analysis_tail(self, analysis_header, time, uid, **kwargs):
         doc = dict(uid=uid, time=time, header=analysis_header, **kwargs)
         self.atail_list.append(doc)
         with open(self._atail_url, 'w+') as fp:
-            ujson.dump(self.atail_list, fp)
+            json.dump(self.atail_list, fp)
         return uid
 
     def insert_dref_header(self, analysis_header, time, uid, data_keys, **kwargs):
@@ -117,14 +116,14 @@ class LocalAnalysisClient:
                    data_keys=data_keys, **kwargs)
         self.dref_header_list.append(doc)
         with open(self._dref_header_url, 'w+') as fp:
-            ujson.dump(self.dref_header_list, fp)
+            json.dump(self.dref_header_list, fp)
         return uid
 
     def insert_dref(self, time, uid, dref_header):
         doc = dict(uid=uid, time=time, dref_header=dref_header)
         self.dref_list.append(doc)
         with open(self._dref_url, 'w+') as fp:
-            ujson.dump(self.dref_list, fp)
+            json.dump(self.dref_list, fp)
         return uid
 
     def find_analysis_header(self, **kwargs):
