@@ -8,8 +8,6 @@ import time as ttime
 from requests.exceptions import ConnectionError
 from . import asutils
 
-# TODO: Return uids from the server RequestHandler.post()
-# TODO: Defaults must filled on the server side
 
 
 class AnalysisClient:
@@ -26,32 +24,32 @@ class AnalysisClient:
                            'analysis_tail': self.find_analysis_tail,
                            'data_reference_header': self.find_data_reference_header,
                            'data_reference': self.find_data_reference}
-    
-    @property 
+
+    @property
     def _host_url(self):
         """URL to the tornado instance"""
         return 'http://{}:{}/'.format(self.host, self.port)
-    
+
     @property
     def aheader_url(self):
         """URL for analysis header handler"""
         return self._host_url + 'analysis_header'
-    
+
     @property
     def atail_url(self):
         """URL for analysis tail handler"""
-        return self._host_url + 'analysis_tail'    
-    
+        return self._host_url + 'analysis_tail'
+
     @property
     def dref_url(self):
         """URL for data reference handler"""
         return self._host_url + 'data_reference'
-    
+
     @property
     def dref_header_url(self):
         """URL for data reference header handler"""
         return self._host_url + 'data_reference_header'
-        
+
     @property
     def fref_url(self):
         """URL for file upload handler"""
@@ -62,7 +60,7 @@ class AnalysisClient:
         """Collect data into fixed-length chunks or blocks"""
         args = [iter(iterable)] * n
         return zip_longest(*args, fillvalue=fillvalue)
-    
+
     def _doc_or_uid_to_uid(self, doc_or_uid):
         """Given Document or uid return the uid
         Parameters
@@ -93,14 +91,27 @@ class AnalysisClient:
         tornado.web.HTTPError
             Raises 404 if no server to be found
         """
-        try:        
+        try:
             r = requests.get(self._host_url + 'is_connected', timeout=0.1)
         except ConnectionError:
             return False
         r.raise_for_status()
-        return True    
-        
-    def insert_analysis_header(self, uid=None, time=None, **kwargs):
+        return True
+    def _post_factory(self, payload, signature):
+        return dict(payload=payload, signature=signature)
+
+    def _query_factory(self, query, signature):
+        return dict(query=query, signature=signature)
+
+    def post(self, url, contents)
+        try:
+            r = requests.post(url, data=ujson.dumps(contents))
+        except ConnectionError:
+            raise ConnectionError('No AnalysisStore server found')
+        r.raise_for_status()
+        return r.json()
+
+    def insert_analysis_header(self, uid, time, provenance, **kwargs):
         """
         Create the entry point for analysis.
 
@@ -119,9 +130,10 @@ class AnalysisClient:
             uid of the document entered
         """
         payload = dict(uid=uid, time=time, **kwargs)
+        self._post_factory(payload=payload, signature='insert_analysis_tail')
         res = asutils.post_document(url=self.aheader_url, contents=payload)
         return res
-        
+
     def insert_analysis_tail(self, header, uid=None, time=None, exit_status=None, **kwargs):
         """
         Create analysis_tail document

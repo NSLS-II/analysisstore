@@ -4,11 +4,12 @@ import tornado.web
 from tornado import gen
 import time
 import pymongo
+from pymongo import DESCENDING
 import pymongo.errors as perr
 import os
 import ujson
 import jsonschema
-
+from ast import  AnalysisStore
 from analysisstore.server import utils
 
 
@@ -35,11 +36,30 @@ def db_connect(database, host, port):
     """
     client = pymongo.MongoClient(host=host, port=port)
     database = client[database]
+    database.analysis_header.create_index([('uid', DESCENDING)],
+                                          unique=True, background=True)
+    database.analysis_header.create_index([('time', DESCENDING)],
+                                          unique=False, background=True)
+    database.analysis_tail.create_index([('analysis_header', DESCENDING)],
+                                        unique=True, background=True)
+    database.analysis_tail.create_index([('uid', DESCENDING)],
+                                        unique=True, background=True)
+    database.analysis_tail.create_index([('time', DESCENDING)],
+                                        unique=False, background=True)
+    database.event_header.create_index([('analysis_header', pymongo.DESCENDING)],
+                                       unique=True, background=False)
+    database.event_header.create_index([('uid', DESCENDING)],
+                                       unique=True, background=False)
+    database.event_header.create_index([('time', DESCENDING)],
+                                        unique=False)
+    database.data_reference.create_index([('time', DESCENDING),
+                                         ('data_reference_header', DESCENDING)])
+    database.data_reference.create_index([('uid', DESCENDING)], unique=True)
     return database
 
 
 class DefaultHandler(tornado.web.RequestHandler):
-    """DefaultHandler which takes care of CORS for @hslepicka js gui. 
+    """DefaultHandler which takes care of CORS for @hslepicka js gui.
     Does not hurt, one day we might need this"""
     @tornado.web.asynchronous
     def set_default_headers(self):
@@ -49,18 +69,30 @@ class DefaultHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Headers', '*')
         self.set_header('Content-type', 'application/json')
 
+    def load_query(self):
+        return utils.unpack_params(self)
+
+    def load_data(self):
+        return ujson.loads(self.request.body.decode("utf-8"))
+
     def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
 
+    def report_error(self, code, status, mstr):
+        fmsg = str(status) + ' ' + str(mstr)
+        raise tornado.web.HTTPError(status_code=code, reason=fmsg)
+
+
 class ConnStatHandler(DefaultHandler):
     @tornado.web.asynchronous
-    def get(self):        
+    def get(self):
         self.finish()
+
 
 class AnalysisHeaderHandler(DefaultHandler):
     """Handler for analysis_header insert, query, and update operations. No deletes are supported.
-    
+
    Methods
     -------
     get()
@@ -70,50 +102,51 @@ class AnalysisHeaderHandler(DefaultHandler):
         Insert a analysis_header document.Same validation method as bluesky, secondary
         safety net.
     """
+    self.insertables = {'insert_analysis_header': astore.insert_analysis_header}
+    self.queryables = {'find_analysis_header': astore.find_analysis_header})
+
+
+    def get_insertable(self, func):
+        try:
+            return self.insertables[func]
+        except KeyError:
+            self.report_error(500, 'Not a valid signature', func)
+
+    def get_queryable(self, func):
+        try:
+            return self.queryables[func]
+        except KeyError:
+            self.report_error(500, 'Not a valid signature', func)
+
     @tornado.web.asynchronous
-    @gen.coroutine
     def get(self):
-        database = self.settings['db']
-        query = utils.unpack_params(self)
-        _id = query.pop('_id', None)
-        find_last = query.pop('find_last', None)
-        if _id:
-            raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
-        if find_last:
-            docs = database.analysis_header.find().sort('time', 
-                                direction=pymongo.DESCENDING)
-        else:
-            docs = database.analysis_header.find(query).sort('time',
-                                                             direction=pymongo.DESCENDING)
-        if not docs:
-            raise utils._compose_err_msg(500,
-                                        reason='No results found for query',
-                                        m_str=query)
-        else:
-            utils.return2client(self, docs)
-    
-    def data_received(self, chunk):
+        query = self.load_query()
+        try:
+            payload = query.pop('payload')
+        except KeyError:
+
+            self.get_queryable
+
+   def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
-    
+
     @tornado.web.asynchronous
     def post(self):
-        database = self.settings['db']
-        data = ujson.loads(self.request.body.decode("utf-8"))
-        jsonschema.validate(data, utils.schemas['analysis_header'])
+        data = self.load_data()
         try:
-            result = database.analysis_header.insert(data)
-        except:
-            raise utils._compose_err_msg(500,
-                                        status='Unable to insert the document')
-        database.analysis_header.create_index([('uid', pymongo.DESCENDING)],
-                                       unique=True, background=True)
-        database.analysis_header.create_index([('time', pymongo.DESCENDING)],
-                                        unique=False)
-        if not result:
-            raise utils._compose_err_msg(500, status='No result for given query')
-        else:
-            utils.return2client(self, data)
+            signature = data.pop('signature')
+        except KeyError:
+            self.report_error(400, 'No valid signature field provided')
+        try:
+            payload = data.pop('payload')
+        except KeyError:
+            self.report_error(400, 'A payload field must exist for post')
+        func = self.get_insertable(signature)
+        func(**payload)
+        self.finish()
+
+
 
 class AnalysisTailHandler(DefaultHandler):
     """Handler for analysis_tail insert and query operations.
@@ -134,12 +167,10 @@ class AnalysisTailHandler(DefaultHandler):
         _id = query.pop('_id', None)
         if _id:
             raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
-        
-        
         docs = database.analysis_tail.find(query).sort('time',
-                                                        direction=pymongo.DESCENDING)
+                                                        direction=DESCENDING)
         if not docs:
-            raise utils._compose_err_msg(500, 
+            raise utils._compose_err_msg(500,
                                         reason='No results found for query',
                                         m_str=query)
         else:
@@ -153,21 +184,14 @@ class AnalysisTailHandler(DefaultHandler):
         try:
             result = database.analysis_tail.insert(data)
         except perr.PyMongoError:
-            # TODO: When do we need compound indexing!?
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
-        database.analysis_tail.create_index([('analysis_header', pymongo.DESCENDING)],
-                                       unique=True, background=True)
-        database.analysis_tail.create_index([('uid', pymongo.DESCENDING)],
-                                       unique=True, background=True)
-        database.analysis_tail.create_index([('time', pymongo.DESCENDING)],
-                                        unique=False)
         if not result:
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
-            
+
     def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
@@ -175,7 +199,7 @@ class AnalysisTailHandler(DefaultHandler):
 
 class DataReferenceHeaderHandler(DefaultHandler):
     """Handler for data_reference_header insert and query operations.
-    
+
     Methods
     -------
     get()
@@ -190,16 +214,16 @@ class DataReferenceHeaderHandler(DefaultHandler):
         query = utils.unpack_params(self)
         _id = query.pop('_id', None)
         if _id:
-            raise utils._compose_err_msg(500, reason='No ObjectId based search supported')        
+            raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
         docs = database.data_reference_header.find(query).sort('time',
-                                                      direction=pymongo.DESCENDING)
+                                                      direction=DESCENDING)
         if not docs:
-            raise utils._compose_err_msg(500, 
+            raise utils._compose_err_msg(500,
                                         reason='No results found for query',
                                         data=query)
         else:
             utils.return2client(self, docs)
-    
+
     @tornado.web.asynchronous
     def post(self):
         database = self.settings['db']
@@ -211,17 +235,11 @@ class DataReferenceHeaderHandler(DefaultHandler):
             raise utils._compose_err_msg(500,
                                         status='Unable to insert the document',
                                         data=data)
-        database.event_header.create_index([('analysis_header', pymongo.DESCENDING)],
-                                       unique=True, background=False)
-        database.event_header.create_index([('uid', pymongo.DESCENDING)],
-                                       unique=True, background=False)
-        database.event_header.create_index([('time', pymongo.DESCENDING)],
-                                        unique=False)
         if not result:
             raise utils._compose_err_msg(500, status='No result for given query')
         else:
             utils.return2client(self, data)
-    
+
     def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
@@ -253,22 +271,12 @@ class DataReferenceHandler(DefaultHandler):
         data = ujson.loads(self.request.body.decode("utf-8"))
         if isinstance(data, list):
             jsonschema.validate(data, utils.schemas['bulk_data_reference'])
-            bulk = database.data_reference.initialize_unordered_bulk_op()
-            for _ in data:
-                if _ is not None:
-                    bulk.insert(_)
-            try:
-                bulk.execute()
-            except pymongo.errors.BulkWriteError as err:
-                raise utils._compose_err_msg(500, err)
-            database.data_reference.create_index([('time', pymongo.DESCENDING),
-                                         ('data_reference_header', pymongo.DESCENDING)])
-            database.data_reference.create_index([('uid', pymongo.DESCENDING)], unique=True)
-        else:
+            database.data_reference.insert_many(data)
+        elif isinstance(data, dict):
             jsonschema.validate(data, utils.schemas['data_reference'])
             result = database.data_reference.insert(data)
-            if not result:
-                raise utils._compose_err_msg(500)
+        else:
+            raise utils._compose_err_msg(403, 'Invalid document format')
 
     @tornado.web.asynchronous
     def put(self):
@@ -286,9 +294,8 @@ class AnalysisFileHandler(DefaultHandler):
     """Provides user the ability to upload/retrieve data over the wire"""
     @property
     def save_path(self):
-        # TODO: make this directory part of overall config
-        return os.path.expanduser(self.settings['file_directory'])  
-    
+        return os.path.expanduser(self.settings['file_directory'])
+
     def manipulate_fname(self, file):
         index = file.rfind(".")
         filename = file[:index].replace(".", "") + file[index:]
@@ -297,7 +304,6 @@ class AnalysisFileHandler(DefaultHandler):
         return filename
 
     def post(self):
-        # TODO: Check if this file exists
         database = self.settings['db']
         files = self.request.files['files']
         header=self.get_argument("header", None, True)
@@ -313,13 +319,13 @@ class AnalysisFileHandler(DefaultHandler):
                     os.mkdir(_dir, 755)
                 except FileExistsError:
                     pass #neglect if header dir already created
-                
+
                 filenames = list(database.file_lookup.find({'analysis_header': header}).distinct('filename'))
                 print(filenames)
                 if filename in filenames:
-                    raise utils._compose_err_msg(500, status='File already exists for header ', 
+                    raise utils._compose_err_msg(500, status='File already exists for header ',
                                                  m_str=header)
-                full_fpath = os.path.join(_dir, filename)                
+                full_fpath = os.path.join(_dir, filename)
                 with open(full_fpath, "wb") as out:
                     # Make sure no executable whatsoever that might be insecure
                     out.write(xfile['body'])
@@ -367,7 +373,7 @@ class AnalysisFileHandler(DefaultHandler):
                 f_list.append(f['filename'])
             print(f_list)
             self.finish(ujson.dumps(f_list))
-            
+
     def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
