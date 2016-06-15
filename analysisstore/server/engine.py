@@ -105,7 +105,6 @@ class AnalysisHeaderHandler(DefaultHandler):
     self.insertables = {'insert_analysis_header': astore.insert_analysis_header}
     self.queryables = {'find_analysis_header': astore.find_analysis_header})
 
-
     def get_insertable(self, func):
         try:
             return self.insertables[func]
@@ -124,8 +123,16 @@ class AnalysisHeaderHandler(DefaultHandler):
         try:
             payload = query.pop('payload')
         except KeyError:
+            self.report_error(400, 'No payload provided by the client')
+        try:
+            signature = query.pop('signature')
+        except KeyError:
+            self.report_error(400, 'No signature provided by the client')
+        func = self.get_queryable(signature)
+        res = func(**payload)
+        self.return2client(res)
+        self.finish()
 
-            self.get_queryable
 
    def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
