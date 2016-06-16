@@ -103,13 +103,9 @@ class AnalysisClient:
     def _query_factory(self, query, signature):
         return dict(query=query, signature=signature)
 
-    def post(self, url, contents)
-        try:
-            r = requests.post(url, data=ujson.dumps(contents))
-        except ConnectionError:
-            raise ConnectionError('No AnalysisStore server found')
+    def post(self, url, params)
+        r = requests.post(url, data=ujson.dumps(params))
         r.raise_for_status()
-        return r.json()
 
     def insert_analysis_header(self, uid, time, provenance, **kwargs):
         """
@@ -129,9 +125,9 @@ class AnalysisClient:
         res: str
             uid of the document entered
         """
-        payload = dict(uid=uid, time=time, **kwargs)
-        self._post_factory(payload=payload, signature='insert_analysis_tail')
-        res = asutils.post_document(url=self.aheader_url, contents=payload)
+        payload = dict(uid=uid, time=time, provenance=provenance **kwargs)
+        params = self._post_factory(payload=payload, signature='insert_analysis_tail')
+        self.post(url=self.aheader_url, contents=params)
         return res
 
     def insert_analysis_tail(self, header, uid=None, time=None, exit_status=None, **kwargs):
@@ -193,7 +189,6 @@ class AnalysisClient:
         return res
 
     def insert_bulk_data_reference(self, data_header, data, chunk_size = 500, **kwargs):
-        # TODO: Data reference could be links to files as @klauer and I agree
         data_len = len(data)
         chunk_count = data_len // chunk_size + bool(data_len % chunk_size)
         chunks = self.grouper(data, chunk_count)
