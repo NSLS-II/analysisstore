@@ -9,58 +9,17 @@ import pymongo.errors as perr
 import os
 import ujson
 import jsonschema
-from ast import  AnalysisStore
 from analysisstore.server import utils
 
 
 loop = tornado.ioloop.IOLoop.instance()
 
 
-def db_connect(database, host, port):
-    """Helper function to deal with stateful connections to motor.
-    Connection established lazily.
-
-    Parameters
-    ----------
-    database: str
-        The name of database pymongo creates and/or connects
-    host: str
-        Name/address of the server that mongo daemon lives
-    port: int
-        Port num of the server
-
-    Returns pymongo.MotorDatabase
-    -------
-        Async server object which comes in handy as server has to juggle multiple clients
-        and makes no difference for a single client compared to pymongo
-    """
-    client = pymongo.MongoClient(host=host, port=port)
-    database = client[database]
-    database.analysis_header.create_index([('uid', DESCENDING)],
-                                          unique=True, background=True)
-    database.analysis_header.create_index([('time', DESCENDING)],
-                                          unique=False, background=True)
-    database.analysis_tail.create_index([('analysis_header', DESCENDING)],
-                                        unique=True, background=True)
-    database.analysis_tail.create_index([('uid', DESCENDING)],
-                                        unique=True, background=True)
-    database.analysis_tail.create_index([('time', DESCENDING)],
-                                        unique=False, background=True)
-    database.event_header.create_index([('analysis_header', pymongo.DESCENDING)],
-                                       unique=True, background=False)
-    database.event_header.create_index([('uid', DESCENDING)],
-                                       unique=True, background=False)
-    database.event_header.create_index([('time', DESCENDING)],
-                                        unique=False)
-    database.data_reference.create_index([('time', DESCENDING),
-                                         ('data_reference_header', DESCENDING)])
-    database.data_reference.create_index([('uid', DESCENDING)], unique=True)
-    return database
-
 
 class DefaultHandler(tornado.web.RequestHandler):
     """DefaultHandler which takes care of CORS for @hslepicka js gui.
     Does not hurt, one day we might need this"""
+    self.astore = self.settings['astore']
     @tornado.web.asynchronous
     def set_default_headers(self):
         self.set_header('Access-Control-Allow-Origin', '*')
@@ -102,8 +61,8 @@ class AnalysisHeaderHandler(DefaultHandler):
         Insert a analysis_header document.Same validation method as bluesky, secondary
         safety net.
     """
-    self.insertables = {'insert_analysis_header': astore.insert_analysis_header}
-    self.queryables = {'find_analysis_header': astore.find_analysis_header})
+    self.insertables = {'insert_analysis_header': self.astore.insert_analysis_header}
+    self.queryables = {'find_analysis_header': self.astore.find_analysis_header})
 
     def get_insertable(self, func):
         try:
@@ -169,41 +128,10 @@ class AnalysisTailHandler(DefaultHandler):
 
     @tornado.web.asynchronous
     def get(self):
-        database = self.settings['db']
-        query = utils.unpack_params(self)
-        _id = query.pop('_id', None)
-        if _id:
-            raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
-        docs = database.analysis_tail.find(query).sort('time',
-                                                        direction=DESCENDING)
-        if not docs:
-            raise utils._compose_err_msg(500,
-                                        reason='No results found for query',
-                                        m_str=query)
-        else:
-            utils.return2client(self, docs)
-
+       pass 
     @tornado.web.asynchronous
     def post(self):
-        database = self.settings['db']
-        data = ujson.loads(self.request.body.decode("utf-8"))
-        jsonschema.validate(data, utils.schemas['analysis_tail'])
-        try:
-            result = database.analysis_tail.insert(data)
-        except perr.PyMongoError:
-            raise utils._compose_err_msg(500,
-                                        status='Unable to insert the document',
-                                        data=data)
-        if not result:
-            raise utils._compose_err_msg(500, status='No result for given query')
-        else:
-            utils.return2client(self, data)
-
-    def data_received(self, chunk):
-        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
-        pass
-
-
+        pass   
 class DataReferenceHeaderHandler(DefaultHandler):
     """Handler for data_reference_header insert and query operations.
 
@@ -223,7 +151,7 @@ class DataReferenceHeaderHandler(DefaultHandler):
         if _id:
             raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
         docs = database.data_reference_header.find(query).sort('time',
-                                                      direction=DESCENDING)
+                                                               direction=DESCENDING)
         if not docs:
             raise utils._compose_err_msg(500,
                                         reason='No results found for query',

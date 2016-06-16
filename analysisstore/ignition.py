@@ -4,6 +4,7 @@ import tornado.web
 import sys
 import tornado.ioloop
 import tornado.options
+from .server.astore import AStore
 from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           AnalysisTailHandler,
                                           DataReferenceHeaderHandler,
@@ -67,10 +68,7 @@ def start_server(config=None):
         if not config:
             raise KeyError('No configuration provided. Provide config file or command line args')
     tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
-    db = db_connect(config['database'],
-                    config['mongo_host'],
-                    config['mongo_port'])
-
+    astore = AStore(config)
     application = tornado.web.Application([(r'/analysis_header', AnalysisHeaderHandler),
                                            (r'/data_reference', DataReferenceHandler),
                                           (r'/data_reference_header', 
@@ -78,7 +76,7 @@ def start_server(config=None):
                                           (r'/analysis_tail', AnalysisTailHandler),
                                           (r'/file', AnalysisFileHandler),
                                           (r'/is_connected', ConnStatHandler)
-                                          ], db=db, file_directory=config['file_directory'])
+                                          ], astore=astore, file_directory=config['file_directory'])
     print('Starting Analysisstore service with configuration ', config)
     application.listen(config['service_port'])
     tornado.ioloop.IOLoop.current().start()
