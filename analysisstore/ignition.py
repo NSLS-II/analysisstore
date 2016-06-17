@@ -10,8 +10,8 @@ from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           DataReferenceHeaderHandler,
                                           DataReferenceHandler,
                                           AnalysisFileHandler,
-                                          ConnStatHandler,
-                                          db_connect)
+                                          ConnStatHandler
+                                          )
 from analysisstore.server.conf import load_configuration
 
 def start_server(config=None):
@@ -28,7 +28,6 @@ def start_server(config=None):
         the existence of a mongo instance running on the specified location.
     """
     if not config:
-        # try to load configuration again
         try:
             config = {k: v for k, v in load_configuration('analysisstore', 'ASST',
                                                           ['mongo_host', 'mongo_port', 'timezone',
@@ -39,18 +38,18 @@ def start_server(config=None):
         parser = argparse.ArgumentParser()
         parser.add_argument('--database', dest='database', type=str,
                             help='name of database to use')
-        parser.add_argument('--mongo_host',
+        parser.add_argument('--mongo-host',
                              dest='mongo_host', type=str,
                             help='host to use')
         parser.add_argument('--timezone', dest='timezone', type=str,
                             help='Local timezone')
-        parser.add_argument('--mongo_port', dest='mongo_port', type=int,
+        parser.add_argument('--mongo-port', dest='mongo_port', type=int,
                             help='port to use to talk to mongo')
         parser.add_argument('--service-port', dest='service_port', type=int,
                             help='port listen to for clients')
         parser.add_argument('--file-directory', dest='file_directory', type=str,
                             help='Directory for file to be saved')
-        parser.add_argument('--log_file_prefix', dest='log_file_prefix', type=str,
+        parser.add_argument('--log-file_prefix', dest='log_file_prefix', type=str,
                             help='Log file name that tornado logs are dumped')
         args = parser.parse_args()
         if args.database is not None:
@@ -68,10 +67,12 @@ def start_server(config=None):
         if not config:
             raise KeyError('No configuration provided. Provide config file or command line args')
     tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
-    astore = AStore(config)
+    cfg = dict(host=config['mongo_host'], port=config['mongo_port'],
+               database=config['database'])
+    astore = AStore(cfg)
     application = tornado.web.Application([(r'/analysis_header', AnalysisHeaderHandler),
                                            (r'/data_reference', DataReferenceHandler),
-                                          (r'/data_reference_header', 
+                                          (r'/data_reference_header',
                                            DataReferenceHeaderHandler),
                                           (r'/analysis_tail', AnalysisTailHandler),
                                           (r'/file', AnalysisFileHandler),

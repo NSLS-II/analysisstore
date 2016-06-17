@@ -9,17 +9,17 @@ import pymongo.errors as perr
 import os
 import ujson
 import jsonschema
-from analysisstore.server import utils
-
+from .utils import unpack_params
 
 loop = tornado.ioloop.IOLoop.instance()
 
 
 
 class DefaultHandler(tornado.web.RequestHandler):
-    """DefaultHandler which takes care of CORS for @hslepicka js gui.
-    Does not hurt, one day we might need this"""
-    self.astore = self.settings['astore']
+    def __init__(self):
+        super().__init__()
+        self.astore = self.settings['astore']
+
     @tornado.web.asynchronous
     def set_default_headers(self):
         self.set_header('Access-Control-Allow-Origin', '*')
@@ -61,8 +61,10 @@ class AnalysisHeaderHandler(DefaultHandler):
         Insert a analysis_header document.Same validation method as bluesky, secondary
         safety net.
     """
-    self.insertables = {'insert_analysis_header': self.astore.insert_analysis_header}
-    self.queryables = {'find_analysis_header': self.astore.find_analysis_header})
+    def __init__(self):
+        super.__init__()
+        self.insertables = {'insert_analysis_header': self.astore.insert_analysis_header}
+        self.queryables = {'find_analysis_header': self.astore.find_analysis_header}
 
     def get_insertable(self, func):
         try:
@@ -93,7 +95,7 @@ class AnalysisHeaderHandler(DefaultHandler):
         self.finish()
 
 
-   def data_received(self, chunk):
+    def data_received(self, chunk):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
 
@@ -113,7 +115,6 @@ class AnalysisHeaderHandler(DefaultHandler):
         self.finish()
 
 
-
 class AnalysisTailHandler(DefaultHandler):
     """Handler for analysis_tail insert and query operations.
 
@@ -128,10 +129,11 @@ class AnalysisTailHandler(DefaultHandler):
 
     @tornado.web.asynchronous
     def get(self):
-       pass 
+       pass
     @tornado.web.asynchronous
     def post(self):
-        pass   
+        pass
+
 class DataReferenceHeaderHandler(DefaultHandler):
     """Handler for data_reference_header insert and query operations.
 
@@ -145,19 +147,7 @@ class DataReferenceHeaderHandler(DefaultHandler):
     """
     @tornado.web.asynchronous
     def get(self):
-        database = self.settings['db']
-        query = utils.unpack_params(self)
-        _id = query.pop('_id', None)
-        if _id:
-            raise utils._compose_err_msg(500, reason='No ObjectId based search supported')
-        docs = database.data_reference_header.find(query).sort('time',
-                                                               direction=DESCENDING)
-        if not docs:
-            raise utils._compose_err_msg(500,
-                                        reason='No results found for query',
-                                        data=query)
-        else:
-            utils.return2client(self, docs)
+        pass
 
     @tornado.web.asynchronous
     def post(self):
@@ -283,11 +273,11 @@ class AnalysisFileHandler(DefaultHandler):
             except StopIteration:
                 raise utils._compose_err_msg(500, 'No such file saved for this header ')
             filename = f_doc['filename']
-            _dir = "{}/{}".format(self.save_path, header) 
+            _dir = "{}/{}".format(self.save_path, header)
             print(_dir)
             _file_path = os.path.join(_dir, filename)
             if not filename or not os.path.exists(_file_path):
-                raise utils._compose_err_msg(404, 'File does not exist on the server side')    
+                raise utils._compose_err_msg(404, 'File does not exist on the server side')
             with open(_file_path, "rb") as f:
                 try:
                     while True:

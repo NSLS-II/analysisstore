@@ -30,7 +30,8 @@ class AStore:
         self.database.data_reference.create_index([('time', DESCENDING),
                                                   ('data_reference_header',
                                                    DESCENDING)])
-        database.data_reference.create_index([('uid', DESCENDING)], unique=True)
+        self.database.data_reference.create_index([('uid', DESCENDING)],
+                                                  unique=True)
 
     def doc_or_uid_to_uid(self, doc_or_uid):
         """Given Document or uid return the uid
@@ -45,18 +46,18 @@ class AStore:
             A string version of the uid of the given document
         """
         if not isinstance(doc_or_uid, six.string_types):
-            doc_or_uid = doc_or_uid['uid']
+            self.doc_or_uid = doc_or_uid['uid']
 
     def extract_verify_ahdr(self, analysis_header):
         hdr = self.doc_or_uid_to_uid(analysis_header)
         if not next(self.find_analysis_header(uid=hdr)):
-            raise RunTimeError('No Analysis Header found uid {}'.format(hdr)
+            raise RunTimeError('No Analysis Header found uid {}'.format(hdr))
         return hdr
 
     def extract_verify_dhdr(self, data_reference_header):
         hdr = self.doc_or_uid_to_uid(data_reference_header)
         if not next(self.find_data_reference_header(uid=hdr)):
-            raise RunTimeError('No DataReferenceHeader found uid {}'.format(hdr)
+            raise RunTimeError('No DataReferenceHeader found uid {}'.format(hdr))
         return hdr
 
     def insert_analysis_header(self, time, uid, provenance, **kwargs):
