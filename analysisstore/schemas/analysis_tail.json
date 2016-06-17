@@ -1,8 +1,8 @@
 {
     "properties": {
-        "run_start": {
+        "analysis_header": {
             "type": "string",
-            "description": "Reference back to the run_start document that this document is paired with."
+            "description": "Reference back to the analysis_header document that this document is paired with."
         },
         "reason": {
             "type": "string",
@@ -24,10 +24,10 @@
     },
     "required": [
         "uid",
-        "run_start",
+        "analysis_header",
         "time",
         "exit_status"
     ],
     "type": "object",
-    "description": "Document for the end of a run indicating the success/fail state of the run and the end time"
+    "description": "Document for the end of a analysis indicating the success/fail state of the run and the end time"
 }
