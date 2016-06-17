@@ -50,16 +50,18 @@ class ConnStatHandler(DefaultHandler):
 
 
 class AnalysisHeaderHandler(DefaultHandler):
-    """Handler for analysis_header insert, query, and update operations. No deletes are supported.
+    """Handler for analysis_header insert, query, and update operations.
+    No deletes are supported.
 
    Methods
     -------
     get()
-        Query analysis_header documents. Query params are jsonified for type preservation so pure string
+        Query analysis_header documents.
+        Query params are jsonified for type preservation so pure string
         query methods will not work
     post()
-        Insert a analysis_header document.Same validation method as bluesky, secondary
-        safety net.
+        Insert a analysis_header document.Same validation method as bluesky,
+        secondary safety net.
     """
     def __init__(self):
         super.__init__()
@@ -130,6 +132,7 @@ class AnalysisTailHandler(DefaultHandler):
     @tornado.web.asynchronous
     def get(self):
        pass
+
     @tornado.web.asynchronous
     def post(self):
         pass
@@ -151,22 +154,6 @@ class DataReferenceHeaderHandler(DefaultHandler):
 
     @tornado.web.asynchronous
     def post(self):
-        database = self.settings['db']
-        data = ujson.loads(self.request.body.decode("utf-8"))
-        jsonschema.validate(data, utils.schemas['data_reference_header'])
-        try:
-            result = database.analysis_header.insert(data)
-        except perr.PyMongoError:
-            raise utils._compose_err_msg(500,
-                                        status='Unable to insert the document',
-                                        data=data)
-        if not result:
-            raise utils._compose_err_msg(500, status='No result for given query')
-        else:
-            utils.return2client(self, data)
-
-    def data_received(self, chunk):
-        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
 
 class DataReferenceHandler(DefaultHandler):
@@ -182,38 +169,12 @@ class DataReferenceHandler(DefaultHandler):
     """
     @tornado.web.asynchronous
     def get(self):
-        database = self.settings['db']
-        query = utils.unpack_params(self)
-        docs = database.data_reference.find(query)
-        if not docs:
-            raise utils._compose_err_msg(500, 'No results for given query', query)
-        else:
-            utils.return2client(self, docs)
+        pass
 
     @tornado.web.asynchronous
     def post(self):
-        database = self.settings['db']
-        data = ujson.loads(self.request.body.decode("utf-8"))
-        if isinstance(data, list):
-            jsonschema.validate(data, utils.schemas['bulk_data_reference'])
-            database.data_reference.insert_many(data)
-        elif isinstance(data, dict):
-            jsonschema.validate(data, utils.schemas['data_reference'])
-            result = database.data_reference.insert(data)
-        else:
-            raise utils._compose_err_msg(403, 'Invalid document format')
-
-    @tornado.web.asynchronous
-    def put(self):
-        raise utils._compose_err_msg(404, 'Data points cannot be updated')
-
-    @tornado.web.asynchronous
-    def delete(self):
-        raise utils._compose_err_msg(404)
-
-    def data_received(self, chunk):
-        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
+
 
 class AnalysisFileHandler(DefaultHandler):
     """Provides user the ability to upload/retrieve data over the wire"""
@@ -298,7 +259,3 @@ class AnalysisFileHandler(DefaultHandler):
                 f_list.append(f['filename'])
             print(f_list)
             self.finish(ujson.dumps(f_list))
-
-    def data_received(self, chunk):
-        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
-        pass
