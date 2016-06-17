@@ -89,13 +89,20 @@ class AStore:
         return uid
 
     def find_analysis_header(self,  **kwargs):
-        pass
+        res = self.database.analysis_header.find(**kwargs)
+        for r in res:
+            yield r
+
 
     def find_data_reference_header(self, **kwargs):
-        pass
+        res = self.database.data_reference_header.find(**kwargs)
+        for r in res:
+            yield r
 
     def find_data_reference(self, **kwargs):
-        pass
+        return list(self.database.data_reference.find(**kwargs))
 
     def find_analysis_tail(self, **kwargs):
-        pass
+        res = self.database.analysis_tail.find(**kwargs)
+        for r in res:
+            yield r
