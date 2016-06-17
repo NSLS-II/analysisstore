@@ -1,18 +1,12 @@
 from __future__ import (absolute_import, print_function)
 import tornado.ioloop
 import tornado.web
-from tornado import gen
-import time
 import pymongo
-from pymongo import DESCENDING
-import pymongo.errors as perr
 import os
 import ujson
-import jsonschema
 from .utils import unpack_params
 
 loop = tornado.ioloop.IOLoop.instance()
-
 
 
 class DefaultHandler(tornado.web.RequestHandler):
@@ -29,7 +23,7 @@ class DefaultHandler(tornado.web.RequestHandler):
         self.set_header('Content-type', 'application/json')
 
     def load_query(self):
-        return utils.unpack_params(self)
+        return unpack_params(self)
 
     def load_data(self):
         return ujson.loads(self.request.body.decode("utf-8"))
@@ -64,6 +58,7 @@ class AnalysisHeaderHandler(DefaultHandler):
         secondary safety net.
     """
     def __init__(self):
+        # Extends tornado specific handler
         super.__init__()
         self.insertables = {'insert_analysis_header': self.astore.insert_analysis_header}
         self.queryables = {'find_analysis_header': self.astore.find_analysis_header}
@@ -96,11 +91,6 @@ class AnalysisHeaderHandler(DefaultHandler):
         self.return2client(res)
         self.finish()
 
-
-    def data_received(self, chunk):
-        """Abstract method, here to show it exists explicitly. Useful for streaming client"""
-        pass
-
     @tornado.web.asynchronous
     def post(self):
         data = self.load_data()
@@ -131,11 +121,12 @@ class AnalysisTailHandler(DefaultHandler):
 
     @tornado.web.asynchronous
     def get(self):
-       pass
+        pass
 
     @tornado.web.asynchronous
     def post(self):
         pass
+
 
 class DataReferenceHeaderHandler(DefaultHandler):
     """Handler for data_reference_header insert and query operations.
@@ -155,6 +146,7 @@ class DataReferenceHeaderHandler(DefaultHandler):
     @tornado.web.asynchronous
     def post(self):
         pass
+
 
 class DataReferenceHandler(DefaultHandler):
     """Handler for event insert and query operations.
@@ -192,24 +184,24 @@ class AnalysisFileHandler(DefaultHandler):
     def post(self):
         database = self.settings['db']
         files = self.request.files['files']
-        header=self.get_argument("header", None, True)
+        header = self.get_argument("header", None, True)
         try:
             for xfile in files:
                 # get the default file name
                 file = xfile['filename']
-                #refine evil characters that might mess with file directory of the server
+                # refine evil characters that might mess with file directory of the server
                 filename = self.manipulate_fname(file)
                 # save the file in the upload folder
                 _dir = "{}/{}".format(self.save_path, header)
                 try:
                     os.mkdir(_dir, 755)
                 except FileExistsError:
-                    pass #neglect if header dir already created
+                    pass # neglect if header dir already created
 
                 filenames = list(database.file_lookup.find({'analysis_header': header}).distinct('filename'))
                 print(filenames)
                 if filename in filenames:
-                    raise utils._compose_err_msg(500, status='File already exists for header ',
+                    raise _compose_err_msg(500, status='File already exists for header ',
                                                  m_str=header)
                 full_fpath = os.path.join(_dir, filename)
                 with open(full_fpath, "wb") as out:
