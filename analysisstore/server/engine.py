@@ -31,10 +31,45 @@ class DefaultHandler(tornado.web.RequestHandler):
         """Abstract method, here to show it exists explicitly. Useful for streaming client"""
         pass
 
-    def report_error(self, code, status, mstr):
+    def report_error(self, code, status, mstr=''):
         fmsg = str(status) + ' ' + str(mstr)
         raise tornado.web.HTTPError(status_code=code, reason=fmsg)
 
+    def return2client(self, payload):
+        """Dump the result back to client's open socket. No need to worry about package size
+        or socket behavior as tornado handles this for us
+
+        Parameters
+        -----------
+        handler: tornado.web.RequestHandler
+            Request handler for the collection of operation(post/get)
+        payload: dict, list
+            Information to be sent to the client
+        """
+        if isinstance(payload, pymongo.cursor.Cursor):
+                l = []
+                for p in payload:
+                    del(p['_id'])
+                    l.append(p)
+                self.write(ujson.dumps(l))
+        elif isinstance(payload, dict):
+            del(payload['_id'])
+            self.write(ujson.dumps(list(payload)))
+        elif isinstance(payload, list):
+            self.write(ujson.dumps(payload))
+        else:
+            self.write('[')
+            d = next(payload)
+            while True:
+                try:
+                    del(d['_id'])
+                    handler.write(ujson.dumps(d))
+                    d = next(payload)
+                    self.write(',')
+                except StopIteration:
+                    break
+            self.write(']')
+        self.finish()
 
 class ConnStatHandler(DefaultHandler):
     @tornado.web.asynchronous
@@ -86,7 +121,8 @@ class AnalysisHeaderHandler(DefaultHandler):
             self.report_error(400, 'No signature provided by the client')
         func = self.get_queryable(signature)
         res = func(**payload)
-        self.return2client(res)
+        # self.return2client(res)
+        self.write(ujson.dumps(res))
         self.finish()
 
     @tornado.web.asynchronous

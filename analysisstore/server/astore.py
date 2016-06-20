@@ -89,21 +89,25 @@ class AStore:
         self.database.analysis_tail.insert(doc)
         return uid
 
-    def find_analysis_header(self,  **kwargs):
-        res = self.database.analysis_header.find(**kwargs)
-        for r in res:
-            yield r
+    def _clean_ids(self, cursor):
+        res = []
+        for c in cursor:
+            del c['_id']
+            res.append(c)
+        return res
 
+    def find_analysis_header(self,  **kwargs):
+        cur = self.database.analysis_header.find(kwargs)
+        return self._clean_ids(cur)
 
     def find_data_reference_header(self, **kwargs):
-        res = self.database.data_reference_header.find(**kwargs)
-        for r in res:
-            yield r
+        cur = self.database.data_reference_header.find(**kwargs)
+        return self._clean_ids(cur)
 
     def find_data_reference(self, **kwargs):
-        return list(self.database.data_reference.find(**kwargs))
+        cur = self.database.data_reference.find(**kwargs)
+        return self._clean_ids(cur)
 
     def find_analysis_tail(self, **kwargs):
-        res = self.database.analysis_tail.find(**kwargs)
-        for r in res:
-            yield r
+        cur = self.database.analysis_tail.find(**kwargs)
+        return self._clean_ids(cur)
