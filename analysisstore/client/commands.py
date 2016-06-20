@@ -91,10 +91,7 @@ class AnalysisClient:
         tornado.web.HTTPError
             Raises 404 if no server to be found
         """
-        try:
-            r = requests.get(self._host_url + 'is_connected', timeout=0.1)
-        except ConnectionError:
-            return False
+        r = requests.get(self._host_url + 'is_connected', timeout=0.1)
         r.raise_for_status()
         return True
     def _post_factory(self, payload, signature):
@@ -103,7 +100,7 @@ class AnalysisClient:
     def _query_factory(self, query, signature):
         return dict(query=query, signature=signature)
 
-    def post(self, url, params)
+    def post(self, url, params):
         r = requests.post(url, data=ujson.dumps(params))
         r.raise_for_status()
 
@@ -125,10 +122,10 @@ class AnalysisClient:
         res: str
             uid of the document entered
         """
-        payload = dict(uid=uid, time=time, provenance=provenance **kwargs)
-        params = self._post_factory(payload=payload, signature='insert_analysis_tail')
-        self.post(url=self.aheader_url, contents=params)
-        return res
+        payload = dict(uid=uid, time=time, provenance=provenance, **kwargs)
+        params = self._post_factory(payload=payload, signature='insert_analysis_header')
+        self.post(url=self.aheader_url, params=params)
+        return uid
 
     def insert_analysis_tail(self, header, uid=None, time=None, exit_status=None, **kwargs):
         """

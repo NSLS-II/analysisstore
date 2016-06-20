@@ -21,8 +21,8 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     license="BSD (3-clause)",
     url="https://github.com/NSLS-II/analysisstore.git",
-    packages=['amostra',
-              'amostra.client'
+    packages=['analysisstore',
+              'analysisstore.client'
               ],
     classifiers=[
         "License :: OSI Approved :: BSD License",

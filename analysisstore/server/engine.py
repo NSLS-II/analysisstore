@@ -10,8 +10,7 @@ loop = tornado.ioloop.IOLoop.instance()
 
 
 class DefaultHandler(tornado.web.RequestHandler):
-    def __init__(self):
-        super().__init__()
+    def initialize(self):
         self.astore = self.settings['astore']
 
     @tornado.web.asynchronous
@@ -54,12 +53,11 @@ class AnalysisHeaderHandler(DefaultHandler):
         Query params are jsonified for type preservation so pure string
         query methods will not work
     post()
-        Insert a analysis_header document.Same validation method as bluesky,
-        secondary safety net.
+        Insert analysis_header documents.
     """
-    def __init__(self):
+    def initialize(self):
         # Extends tornado specific handler
-        super.__init__()
+        self.astore = self.settings['astore']
         self.insertables = {'insert_analysis_header': self.astore.insert_analysis_header}
         self.queryables = {'find_analysis_header': self.astore.find_analysis_header}
 

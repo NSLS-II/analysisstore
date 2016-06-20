@@ -62,7 +62,7 @@ class AStore:
 
     def insert_analysis_header(self, time, uid, provenance, **kwargs):
         doc = dict(time=time, uid=uid, provenance=provenance, **kwargs)
-        self.databae.analysis_header.insert(doc)
+        self.database.analysis_header.insert(doc)
         return uid
 
     def insert_data_reference_header(self, time, uid, analysis_header,
