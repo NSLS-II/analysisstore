@@ -97,17 +97,23 @@ class AStore:
         return res
 
     def find_analysis_header(self,  **kwargs):
-        cur = self.database.analysis_header.find(kwargs)
+        cur = self.database.analysis_header.find(kwargs).sort([('time', DESCENDING),
+                                                               ('uid', DESCENDING)])
         return self._clean_ids(cur)
 
     def find_data_reference_header(self, **kwargs):
-        cur = self.database.data_reference_header.find(**kwargs)
+        cur = self.database.data_reference_header.find(**kwargs).sort([('time', DESCENDING),
+                                                                       ('uid', DESCENDING)])
         return self._clean_ids(cur)
 
     def find_data_reference(self, **kwargs):
-        cur = self.database.data_reference.find(**kwargs)
+        cur = self.database.data_reference.find(**kwargs).sort([('time', DESCENDING),
+                                                                ('uid', DESCENDING)])
+
         return self._clean_ids(cur)
 
     def find_analysis_tail(self, **kwargs):
-        cur = self.database.analysis_tail.find(**kwargs)
+        cur = self.database.analysis_tail.find(**kwargs).sort([('time', DESCENDING),
+                                                               ('uid', DESCENDING)])
+
         return self._clean_ids(cur)

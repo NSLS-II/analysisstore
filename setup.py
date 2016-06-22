@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'arkilic'
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     try:
         from setuptools.core import setup
@@ -21,9 +21,7 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     license="BSD (3-clause)",
     url="https://github.com/NSLS-II/analysisstore.git",
-    packages=['analysisstore',
-              'analysisstore.client'
-              ],
+    packages=find_packages(),
     classifiers=[
         "License :: OSI Approved :: BSD License",
         "Development Status :: 3 - Alpha",
