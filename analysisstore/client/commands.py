@@ -136,8 +136,14 @@ class AnalysisClient:
         self.post(url=self.aheader_url, params=params)
         return uid
 
-    def insert_analysis_tail(self, header, uid=None, time=None, exit_status=None, **kwargs):
-        pass
+    def insert_analysis_tail(self, analysis_header, uid=None, time=None,
+                             exit_status=None, **kwargs):
+        payload = dict(uid=uid, time=time, analysis_header=analysis_header,
+                       exit_status=exit_status, **kwargs)
+        params = self._post_factory(payload=payload,
+                                    signature='insert_analysis_tail')
+        self.post(url=self.atail_url, params=params)
+        return uid
 
     def insert_data_reference_header(self, header, uid=None, time=None, **kwargs):
         """
