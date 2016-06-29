@@ -38,12 +38,12 @@ def start_server(config=None):
         parser = argparse.ArgumentParser()
         parser.add_argument('--database', dest='database', type=str,
                             help='name of database to use')
-        parser.add_argument('--mongo_host',
+        parser.add_argument('--mongo-host',
                              dest='mongo_host', type=str,
                             help='host to use')
         parser.add_argument('--timezone', dest='timezone', type=str,
                             help='Local timezone')
-        parser.add_argument('--mongo_port', dest='mongo_port', type=int,
+        parser.add_argument('--mongo-port', dest='mongo_port', type=int,
                             help='port to use to talk to mongo')
         parser.add_argument('--service-port', dest='service_port', type=int,
                             help='port listen to for clients')
