@@ -1,4 +1,5 @@
 import ujson
+import json
 import requests
 from doct import Document
 import six
@@ -10,7 +11,7 @@ def get_document(url, doc_type, as_json, contents):
     content = ujson.loads(r.text)
     if as_json:
         return r.text
-    else:        
+    else:
         for c in content:
             yield Document(doc_type, c)
 
@@ -26,13 +27,15 @@ def post_document(url, contents):
 
 def write_to_json(payload, filename):
     with open(filename, 'w+') as fp:
-        ujson.dump(payload, fp)
+        json.dump(payload, fp)
 
 
 def read_from_json(filename):
-    with open(filename, 'r') as fp:
-        return ujson.load(fp)
-
+    try:
+        with open(filename, 'r') as fp:
+            return json.load(fp)
+    except (FileNotFoundError, ValueError):
+        return []
 
 def doc_or_uid_to_uid(doc_or_uid):
     """Given Document or uid return the uid

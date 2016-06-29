@@ -4,13 +4,14 @@ import tornado.web
 import sys
 import tornado.ioloop
 import tornado.options
+from .server.astore import AStore
 from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           AnalysisTailHandler,
                                           DataReferenceHeaderHandler,
                                           DataReferenceHandler,
                                           AnalysisFileHandler,
-                                          ConnStatHandler,
-                                          db_connect)
+                                          ConnStatHandler
+                                          )
 from analysisstore.server.conf import load_configuration
 
 def start_server(config=None):
@@ -27,7 +28,6 @@ def start_server(config=None):
         the existence of a mongo instance running on the specified location.
     """
     if not config:
-        # try to load configuration again
         try:
             config = {k: v for k, v in load_configuration('analysisstore', 'ASST',
                                                           ['mongo_host', 'mongo_port', 'timezone',
@@ -49,7 +49,7 @@ def start_server(config=None):
                             help='port listen to for clients')
         parser.add_argument('--file-directory', dest='file_directory', type=str,
                             help='Directory for file to be saved')
-        parser.add_argument('--log_file_prefix', dest='log_file_prefix', type=str,
+        parser.add_argument('--log-file_prefix', dest='log_file_prefix', type=str,
                             help='Log file name that tornado logs are dumped')
         args = parser.parse_args()
         if args.database is not None:
@@ -67,18 +67,17 @@ def start_server(config=None):
         if not config:
             raise KeyError('No configuration provided. Provide config file or command line args')
     tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
-    db = db_connect(config['database'],
-                    config['mongo_host'],
-                    config['mongo_port'])
-
+    cfg = dict(host=config['mongo_host'], port=config['mongo_port'],
+               database=config['database'])
+    astore = AStore(cfg)
     application = tornado.web.Application([(r'/analysis_header', AnalysisHeaderHandler),
                                            (r'/data_reference', DataReferenceHandler),
-                                          (r'/data_reference_header', 
+                                          (r'/data_reference_header',
                                            DataReferenceHeaderHandler),
                                           (r'/analysis_tail', AnalysisTailHandler),
                                           (r'/file', AnalysisFileHandler),
                                           (r'/is_connected', ConnStatHandler)
-                                          ], db=db, file_directory=config['file_directory'])
+                                          ], astore=astore, file_directory=config['file_directory'])
     print('Starting Analysisstore service with configuration ', config)
     application.listen(config['service_port'])
     tornado.ioloop.IOLoop.current().start()

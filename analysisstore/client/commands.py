@@ -8,8 +8,6 @@ import time as ttime
 from requests.exceptions import ConnectionError
 from . import asutils
 
-# TODO: Return uids from the server RequestHandler.post()
-# TODO: Defaults must filled on the server side
 
 
 class AnalysisClient:
@@ -26,32 +24,32 @@ class AnalysisClient:
                            'analysis_tail': self.find_analysis_tail,
                            'data_reference_header': self.find_data_reference_header,
                            'data_reference': self.find_data_reference}
-    
-    @property 
+
+    @property
     def _host_url(self):
         """URL to the tornado instance"""
         return 'http://{}:{}/'.format(self.host, self.port)
-    
+
     @property
     def aheader_url(self):
         """URL for analysis header handler"""
         return self._host_url + 'analysis_header'
-    
+
     @property
     def atail_url(self):
         """URL for analysis tail handler"""
-        return self._host_url + 'analysis_tail'    
-    
+        return self._host_url + 'analysis_tail'
+
     @property
     def dref_url(self):
         """URL for data reference handler"""
         return self._host_url + 'data_reference'
-    
+
     @property
     def dref_header_url(self):
         """URL for data reference header handler"""
         return self._host_url + 'data_reference_header'
-        
+
     @property
     def fref_url(self):
         """URL for file upload handler"""
@@ -62,7 +60,7 @@ class AnalysisClient:
         """Collect data into fixed-length chunks or blocks"""
         args = [iter(iterable)] * n
         return zip_longest(*args, fillvalue=fillvalue)
-    
+
     def _doc_or_uid_to_uid(self, doc_or_uid):
         """Given Document or uid return the uid
         Parameters
@@ -93,14 +91,29 @@ class AnalysisClient:
         tornado.web.HTTPError
             Raises 404 if no server to be found
         """
-        try:        
-            r = requests.get(self._host_url + 'is_connected', timeout=0.1)
+        r = requests.get(self._host_url + 'is_connected', timeout=0.1)
+        try:
+            r.raise_for_status()
         except ConnectionError:
             return False
+        return True
+
+    def _post_factory(self, payload, signature):
+        return dict(payload=payload, signature=signature)
+
+    def _query_factory(self, payload, signature):
+        return dict(payload=payload, signature=signature)
+
+    def post(self, url, params):
+        r = requests.post(url, data=ujson.dumps(params))
         r.raise_for_status()
-        return True    
-        
-    def insert_analysis_header(self, uid=None, time=None, **kwargs):
+
+    def get(self, url, query):
+        r = requests.get(url, params=ujson.dumps(query))
+        r.raise_for_status()
+        return r.json()
+
+    def insert_analysis_header(self, uid, time, provenance, **kwargs):
         """
         Create the entry point for analysis.
 
@@ -118,37 +131,19 @@ class AnalysisClient:
         res: str
             uid of the document entered
         """
-        payload = dict(uid=uid, time=time, **kwargs)
-        res = asutils.post_document(url=self.aheader_url, contents=payload)
-        return res
-        
-    def insert_analysis_tail(self, header, uid=None, time=None, exit_status=None, **kwargs):
-        """
-        Create analysis_tail document
+        payload = dict(uid=uid, time=time, provenance=provenance, **kwargs)
+        params = self._post_factory(payload=payload, signature='insert_analysis_header')
+        self.post(url=self.aheader_url, params=params)
+        return uid
 
-        Parameters
-        ----------
-        header: doct.Document or uid
-            analysis_header document this tail points to. Foreign key to the analysis_header.
-        uid: str; optional
-            Unique identifier for analysis_tail document. Server fills up this field if not provided
-        time: float; optional
-            Time document was created. Server fills up this field if not provided
-        exit_status: str
-            The status analysis stopped
-        kwargs: dict
-            Additional fields.
-        Returns
-        -------
-        res: str
-            uid of the inserted document
-        """
-        payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
-                       uid=uid, time=time ,
-                       exit_status=exit_status if exit_status else "success",
-                       **kwargs)
-        res = asutils.post_document(url=self.atail_url, contents=payload)
-        return res
+    def insert_analysis_tail(self, analysis_header, uid=None, time=None,
+                             exit_status=None, **kwargs):
+        payload = dict(uid=uid, time=time, analysis_header=analysis_header,
+                       exit_status=exit_status, **kwargs)
+        params = self._post_factory(payload=payload,
+                                    signature='insert_analysis_tail')
+        self.post(url=self.atail_url, params=params)
+        return uid
 
     def insert_data_reference_header(self, header, uid=None, time=None, **kwargs):
         """
@@ -169,10 +164,7 @@ class AnalysisClient:
         res: str
             uid of the inserted document
         """
-        payload = dict(analysis_header=self._doc_or_uid_to_uid(header),
-                       uid=uid, time=time, **kwargs)
-        res = asutils.post_document(url=self.dref_header_url, contents=payload)
-        return res
+        pass
 
     def insert_data_reference(self,  data_header, uid=None, time=None, **kwargs):
         payload = dict(data_reference_header=self._doc_or_uid(data_header),
@@ -181,13 +173,12 @@ class AnalysisClient:
         return res
 
     def insert_bulk_data_reference(self, data_header, data, chunk_size = 500, **kwargs):
-        # TODO: Data reference could be links to files as @klauer and I agree
         data_len = len(data)
         chunk_count = data_len // chunk_size + bool(data_len % chunk_size)
         chunks = self.grouper(data, chunk_count)
         for c in chunks:
             payload = ujson.dumps(list(c))
-            asutils.post_document(url=self.dref_url, contents=payload)        
+            asutils.post_document(url=self.dref_url, contents=payload)
 
     def upload_file(self, header, file):
         """Upload one file at a time"""
@@ -195,10 +186,10 @@ class AnalysisClient:
         # abusing this feature. Bulk inserts is as simple as passing a list of files
         files = {'files': open(file, 'rb')}
         # no metadata allowed, use header to store image info or image itself
-        r = requests.post(self.fref_url, data={'header': self._doc_or_uid_to_uid(header)}, 
+        r = requests.post(self.fref_url, data={'header': self._doc_or_uid_to_uid(header)},
                           files=files, stream=True)
         r.raise_for_status()
-    
+
     def get_file_names(self, header):
         """Returns a set of file names provided header information"""
         header = self._doc_or_uid_to_uid(header)
@@ -206,14 +197,14 @@ class AnalysisClient:
         r.raise_for_status()
         content = ujson.loads(r.text)
         yield content
-        
+
     def download_file(self, header, filename, display=False):
         header = self._doc_or_uid_to_uid(header)
-        r = requests.get(self.fref_url, params={'header': header, 
+        r = requests.get(self.fref_url, params={'header': header,
                                                 'filename': filename}, stream=True)
         r.raise_for_status()
         with open(filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=4096): 
+            for chunk in r.iter_content(chunk_size=4096):
                 if chunk:
                     f.write(chunk)
         if display:
@@ -228,25 +219,24 @@ class AnalysisClient:
     def update_analysis_tail(self, query, update):
         raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')
 
-    def find_analysis_header(self, as_json=False, **kwargs):
-        return asutils.get_document(url=self.aheader_url, doc_type='AnalysisHeader', 
-                             as_json=as_json, contents=kwargs)
+    def find_analysis_header(self, **kwargs):
+        q = self._query_factory(kwargs, signature='find_analysis_header')
+        return self.get(self.aheader_url, q)
 
-    def find_analysis_tail(self, as_json=False, **kwargs):
-        return asutils.get_document(url=self.atail_url, doc_type='AnalysisTail', 
-                             as_json=as_json, contents=kwargs)
+    def find_analysis_tail(self, **kwargs):
+        q = self._query_factory(kwargs, signature='find_analysis_tail')
+        return self.get(self.atail_url, q)
 
-    def find_data_reference_header(self, as_json=False, **kwargs):
-        return asutils.get_document(url=self.dref_header_url, doc_type='DataReferenceHeader', 
-                             as_json=as_json, contents=kwargs)
+    def find_data_reference_header(self, **kwargs):
+        q = self._query_factory(kwargs, signature='find_data_reference_header')
+        return self.get(self.dref_header_url, q)
 
-    def find_data_reference(self, as_json=False, **kwargs):
-        return asutils.get_document(url=self.dref_url, doc_type='DataReference', 
-                             as_json=as_json, contents=kwargs)
-    
+    def find_data_reference(self, **kwargs):
+        q = self._query_factory(kwargs, signature='find_analysis_header')
+        return self.get(self.dref_url, q)
+
     def insert(self, doc_type, **kwargs):
-        return self._insert_dict[doc_type](**kwargs)
-        
+        pass
+
     def find(self, doc_type, **kwargs):
-        return self._find_dict[doc_type](**kwargs)
-    
+        pass
