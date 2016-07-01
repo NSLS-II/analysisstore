@@ -136,8 +136,8 @@ class AnalysisClient:
         self.post(url=self.aheader_url, params=params)
         return uid
 
-    def insert_analysis_tail(self, analysis_header, uid=None, time=None,
-                             exit_status=None, **kwargs):
+    def insert_analysis_tail(self, analysis_header, uid, time,
+                             exit_status, **kwargs):
         payload = dict(uid=uid, time=time, analysis_header=analysis_header,
                        exit_status=exit_status, **kwargs)
         params = self._post_factory(payload=payload,
@@ -145,7 +145,7 @@ class AnalysisClient:
         self.post(url=self.atail_url, params=params)
         return uid
 
-    def insert_data_reference_header(self, header, uid=None, time=None, **kwargs):
+    def insert_data_reference_header(self, analysis_header, uid, time, data_keys, **kwargs):
         """
         Create data reference header document
         Parameters
@@ -164,12 +164,20 @@ class AnalysisClient:
         res: str
             uid of the inserted document
         """
-        pass
+        payload = dict(uid=uid, time=time, analysis_header=analysis_header,
+                       data_keys=data_keys, **kwargs)
+        params = self._post_factory(payload=payload,
+                                    signature='insert_data_reference_header')
+        self.post(url=self.dref_header_url, params=params)
+        return uid
 
-    def insert_data_reference(self,  data_header, uid=None, time=None, **kwargs):
-        payload = dict(data_reference_header=self._doc_or_uid(data_header),
-                       uid=uid, time=time, **kwargs)
-        res = asutils.post_document(url=self.dref_url, contents=payload)
+    def insert_data_reference(self,  data_header, uid, time, data, timestamps, **kwargs):
+        payload = dict(data_reference_header=data_header,
+                       uid=uid, time=time, data=data, timestamps=timestamps,
+                       **kwargs)
+        params = self._post_factory(payload=payload,
+                                    signature='insert_data_reference')
+        res = asutils.post_document(url=self.dref_url, contents=params)
         return res
 
     def insert_bulk_data_reference(self, data_header, data, chunk_size = 500, **kwargs):
@@ -179,39 +187,6 @@ class AnalysisClient:
         for c in chunks:
             payload = ujson.dumps(list(c))
             asutils.post_document(url=self.dref_url, contents=payload)
-
-    def upload_file(self, header, file):
-        """Upload one file at a time"""
-        # I discourage and limit file upload to one file per time bc I do not want people
-        # abusing this feature. Bulk inserts is as simple as passing a list of files
-        files = {'files': open(file, 'rb')}
-        # no metadata allowed, use header to store image info or image itself
-        r = requests.post(self.fref_url, data={'header': self._doc_or_uid_to_uid(header)},
-                          files=files, stream=True)
-        r.raise_for_status()
-
-    def get_file_names(self, header):
-        """Returns a set of file names provided header information"""
-        header = self._doc_or_uid_to_uid(header)
-        r = requests.get(self.fref_url, params={'header': header})
-        r.raise_for_status()
-        content = ujson.loads(r.text)
-        yield content
-
-    def download_file(self, header, filename, display=False):
-        header = self._doc_or_uid_to_uid(header)
-        r = requests.get(self.fref_url, params={'header': header,
-                                                'filename': filename}, stream=True)
-        r.raise_for_status()
-        with open(filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=4096):
-                if chunk:
-                    f.write(chunk)
-        if display:
-            from PIL import Image
-            image = Image.open(filename)
-            return image
-        return filename # return the url to the local saved locally
 
     def update_analysis_header(self, query, update):
         raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')
@@ -232,7 +207,7 @@ class AnalysisClient:
         return self.get(self.dref_header_url, q)
 
     def find_data_reference(self, **kwargs):
-        q = self._query_factory(kwargs, signature='find_analysis_header')
+        q = self._query_factory(kwargs, signature='find_data_reference')
         return self.get(self.dref_url, q)
 
     def insert(self, doc_type, **kwargs):

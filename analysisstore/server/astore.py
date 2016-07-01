@@ -69,34 +69,34 @@ class AStore:
 
     def insert_data_reference_header(self, time, uid, analysis_header,
                                      data_keys, **kwargs):
-        try:
-            hdr = self.extract_verify_ahdr(analysis_header)
-        except RuntimeError:
-            hdr = self.doc_or_uid_to_uid(analysis_header)
-            doc = dict(time=time, uid=uid, analysis_header=hdr, data_keys=data_keys,
-                       **kwargs)
-            self.database.data_reference_header.insert(doc)
-            return uid
+        # try:
+        #    hdr = self.extract_verify_ahdr(analysis_header)
+        # except RuntimeError:
+        #    hdr = self.doc_or_uid_to_uid(analysis_header)
+        doc = dict(time=time, uid=uid, analysis_header=analysis_header, data_keys=data_keys,
+                   **kwargs)
+        self.database.data_reference_header.insert(doc)
+        return uid
 
     def insert_data_reference(self, time, uid, data_reference_header,
-                              data_keys, **kwargs):
-        try:
-            dhdr = self.extract_verify_dhdr(data_reference_header)
-        except RuntimeError:
-            dhdr = self.doc_or_uid_to_uid(data_reference_header)
-            doc = dict(time=time, uid=uid, data_reference_header=dhdr,
-                       data_keys=data_keys, **kwargs)
-            self.database.data_reference.insert(doc)
-            return uid
+                              data, timestamps, **kwargs):
+        #try:
+        #    dhdr = self.extract_verify_dhdr(data_reference_header)
+        #except RuntimeError:
+        dhdr = self.doc_or_uid_to_uid(data_reference_header)
+        doc = dict(time=time, uid=uid, data_reference_header=dhdr,
+                   data=data, timestamps=timestamps, **kwargs)
+        self.database.data_reference.insert(doc)
+        return uid
 
     def insert_analysis_tail(self, time, uid, analysis_header, exit_status,
                              **kwargs):
-        try:
-            hdr = self.extract_verify_ahdr(analysis_header)
-        except RuntimeError:
-            hdr = self.doc_or_uid_to_uid(analysis_header)
+        #try:
+        #    hdr = self.extract_verify_ahdr(analysis_header)
+        #except RuntimeError:
+        #    hdr = self.doc_or_uid_to_uid(analysis_header)
 
-            doc = dict(time=time, uid=uid, analysis_header=hdr,
+            doc = dict(time=time, uid=uid, analysis_header=analysis_header,
                        exit_status=exit_status, **kwargs)
             self.database.analysis_tail.insert(doc)
             return uid
@@ -114,18 +114,17 @@ class AStore:
         return self._clean_ids(cur)
 
     def find_data_reference_header(self, **kwargs):
-        cur = self.database.data_reference_header.find(**kwargs).sort([('time', DESCENDING),
-                                                                       ('uid', DESCENDING)])
+        cur = self.database.data_reference_header.find(kwargs).sort([('time', DESCENDING),
+                                                                     ('uid', DESCENDING)])
         return self._clean_ids(cur)
 
     def find_data_reference(self, **kwargs):
-        cur = self.database.data_reference.find(**kwargs).sort([('time', DESCENDING),
+        cur = self.database.data_reference.find(kwargs).sort([('time', DESCENDING),
                                                                 ('uid', DESCENDING)])
 
         return self._clean_ids(cur)
 
     def find_analysis_tail(self, **kwargs):
-        cur = self.database.analysis_tail.find(**kwargs).sort([('time', DESCENDING),
+        cur = self.database.analysis_tail.find(kwargs).sort([('time', DESCENDING),
                                                                ('uid', DESCENDING)])
-
         return self._clean_ids(cur)
