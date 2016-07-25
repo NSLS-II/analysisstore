@@ -3,7 +3,6 @@ import jsonschema
 import json
 import six
 
-# TODO: Implement bulk data reference
 
 class AStore:
     def __init__(self, config):
@@ -15,7 +14,6 @@ class AStore:
         -----------
         config: dict
             host, port in integer format, and database
-
         """
         self.client = MongoClient(host=config['host'],
                              port=config['port'])

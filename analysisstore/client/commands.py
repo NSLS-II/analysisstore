@@ -50,12 +50,6 @@ class AnalysisClient:
         """URL for data reference header handler"""
         return self._host_url + 'data_reference_header'
 
-    @property
-    def fref_url(self):
-        """URL for file upload handler"""
-        return self._host_url + 'file'
-
-
     def _grouper(self, iterable, n, fillvalue=None):
         """Collect data into fixed-length chunks or blocks"""
         args = [iter(iterable)] * n
@@ -99,17 +93,56 @@ class AnalysisClient:
         return True
 
     def _post_factory(self, payload, signature):
+        """Prepares data for post. Not the new-school RESTful as we are too flexible.
+        Parameters
+        ----------
+        payload: dict
+            Data to be shipped to the server
+        signature: str
+            Signature of the routine post will be routed to
+        """
         return dict(payload=payload, signature=signature)
 
     def _query_factory(self, payload, signature):
+        """Prepares data for get. Not the new-school RESTful as we are too flexible.
+        Parameters
+        ----------
+        payload: dict
+            Data to be shipped to the server
+        signature: str
+            Signature of the routine get will be routed to
+        """
         return dict(payload=payload, signature=signature)
 
     def post(self, url, params):
+        """Posts data to the server. For insert operations
+        Parameters
+        ----------
+        url: str
+            The address of the post
+        params: dict
+            A special signature and data for this service
+        Raises
+        ------
+        requests.HTTPError
+            In case post fails (status_code != 200)
+        """
         r = requests.post(url, data=ujson.dumps(params))
         r.raise_for_status()
 
     def get(self, url, query):
-        r = requests.get(url, params=ujson.dumps(query))
+        """Gets data to the server. For query operations
+        Parameters
+        ----------
+        url: str
+            The address of the post
+        params: dict
+            A special signature and data for this service
+        Raises
+        ------
+        requests.HTTPError
+            In case get fails (status_code != 200)
+        """ r = requests.get(url, params=ujson.dumps(query))
         r.raise_for_status()
         return r.json()
 
@@ -214,4 +247,8 @@ class AnalysisClient:
         pass
 
     def find(self, doc_type, **kwargs):
-        pass
+        try:
+            func = self._find_dict[doc_type]
+        except KeyError:
+            raise KeyError('Not a valid document type for find')
+        return func(**kwargs)
