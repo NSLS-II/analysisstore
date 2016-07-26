@@ -240,7 +240,7 @@ class AnalysisClient:
 
     def insert_data_reference(self,  data_header, uid, time, data, timestamps, **kwargs):
        """
-        Create data reference header document
+        Create data reference document
         Parameters
         ----------
         data_header : doct.Document or uid

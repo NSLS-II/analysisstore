@@ -69,7 +69,7 @@ class AStore:
 
         Parameters
         ----------
-        analysis_header: doct.Document or str
+        analysis_header : doct.Document or str
             AnalysisHeader document or uid
         Returns
         -------
@@ -87,7 +87,7 @@ class AStore:
 
         Parameters
         ----------
-        data_reference_header: doct.Document or str
+        data_reference_header : doct.Document or str
             DataReferenceHeader document or uid
         Returns
         -------
@@ -103,11 +103,11 @@ class AStore:
         """Create a database entry for the analysis_header
         Parameters
         __________
-        time: float
+        time : float
             Time of analysis header creation
-         uid: str
+         uid : str
             Unique identifier for the analysis header document
-         provenance: dict
+         provenance : dict
             Provenance information for this data analysis
 
         Returns
@@ -124,13 +124,13 @@ class AStore:
         """Create a database entry for the data_reference_header
         Parameters
         __________
-        time: float
+        time : float
             Time of data reference header creation
-         uid: str
+         uid : str
             Unique identifier for the data reference header document
-         analysis_header: doct.Document or uid
+         analysis_header : doct.Document or uid
             Foreign key to data analysis header
-        data_keys: dict
+        data_keys : dict
            Set of key/value pairs that describe the contents of data reference
 
         Returns
@@ -150,6 +150,24 @@ class AStore:
 
     def insert_data_reference(self, time, uid, data_reference_header,
                               data, timestamps, **kwargs):
+        """
+        Create data reference header document
+        Parameters
+        ----------
+        data_header : doct.Document or uid
+            data_reference_header document this tail points to. Foreign key to the data_reference_header.
+        uid : str
+            Unique identifier for data_reference document
+        time : float
+            Time document was created. Server fills up this field if not provided
+        kwargs : dict
+            Additional fields
+
+        Returns
+        -------
+        uid : str
+            uid of the inserted document
+        """
         try:
             dhdr = self.extract_verify_dhdr(data_reference_header)
         except RuntimeError:
@@ -189,6 +207,7 @@ class AStore:
 
     def _clean_ids(self, cursor):
         # TODO: Replace this with mongo aggregation pipeline
+        """Given a pymongo cursor, all _id fields are removed from set of documents"""
         res = []
         for c in cursor:
             del c['_id']
@@ -196,9 +215,7 @@ class AStore:
         return res
 
     def find_analysis_header(self,  **kwargs):
-        """Given a set of kwargs in mongo query format, returns a list of
-        analysis headers that matches given criteria
-        """
+        """Given a set of parameters, return analysis header(s) that match the provided criteria"""
         cur = self.database.analysis_header.find(kwargs).sort([('time', DESCENDING),
                                                                ('uid', DESCENDING)])
         return self._clean_ids(cur)
