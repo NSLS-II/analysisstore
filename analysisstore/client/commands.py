@@ -2,7 +2,6 @@ from __future__ import (absolute_import, unicode_literals, print_function)
 import requests
 import ujson
 from itertools import zip_longest
-from .conf import host, port
 import six
 import time as ttime
 from requests.exceptions import ConnectionError

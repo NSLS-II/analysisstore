@@ -1,4 +1,4 @@
-from ..commands import AnalysisClient
+from ..client.commands import AnalysisClient
 
 
 def test_client_api():

@@ -1,4 +1,4 @@
-from ..commands import AnalysisClient
+from ..client.commands import AnalysisClient
 from .testing import TESTING_CONFIG
 import pytest
 
