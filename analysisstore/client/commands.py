@@ -12,9 +12,9 @@ from . import asutils
 
 class AnalysisClient:
     """Client used to pass messages between analysisstore server and apps"""
-    def __init__(self, host=host, port=port):
-        self.host = host
-        self.port = port
+    def __init__(self, config):
+        self.host = config['host']
+        self.port = config['port']
         self._insert_dict = {'analysis_header': self.insert_analysis_header,
                              'analysis_tail': self.insert_analysis_tail,
                              'data_reference_header': self.insert_data_reference_header,
@@ -239,7 +239,7 @@ class AnalysisClient:
         return uid
 
     def insert_data_reference(self,  data_header, uid, time, data, timestamps, **kwargs):
-       """
+        """
         Create data reference document
         Parameters
         ----------
