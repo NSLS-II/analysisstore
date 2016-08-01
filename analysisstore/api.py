@@ -1,1 +1,1 @@
-from .commands import AnalysisClient
+from .client.commands import AnalysisClient
