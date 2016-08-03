@@ -210,7 +210,8 @@ class AnalysisClient:
         self.post(url=self.atail_url, params=params)
         return uid
 
-    def insert_data_reference_header(self, analysis_header, uid, time, data_keys, **kwargs):
+    def insert_data_reference_header(self, analysis_header, uid, time,
+                                     data_keys, **kwargs):
         """
         Create data reference header document
         Parameters
@@ -229,6 +230,7 @@ class AnalysisClient:
         res : str
             uid of the inserted document
         """
+        # TODO: Validate data_keys and their format
         hdr = self._doc_or_uid_to_uid(analysis_header)
         payload = dict(uid=uid, time=time, analysis_header=hdr,
                        data_keys=data_keys, **kwargs)

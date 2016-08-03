@@ -2,6 +2,7 @@ from ..client.commands import AnalysisClient
 from .testing import TESTING_CONFIG
 import pytest
 from .testing import astore_setup, astore_teardown
+import time
 import requests
 from doct import Document
 import uuid
@@ -54,12 +55,45 @@ class TestConnClient:
 
     def test_header_insert(self):
        pytest.raises(TypeError, self.conn.insert_analysis_header)
+       m_uid = str(uuid.uuid4())
+       rid = self.conn.insert_analysis_header(uid=m_uid, time=time.time(),
+                                              provenance={'version': 1.1},
+                                              custom=False)
+       rid == m_uid
+
+    def generate_ahdr(self):
+        hid = self.conn.insert_analysis_header(uid=str(uuid.uuid4()),
+                                               time=time.time(),
+                                               provenance={'version': 1.1},
+                                               custom=False)
+        return hid
+
+    def generate_dref(self, hdr_id):
+        did = self.conn.insert_analysis_tail(uid=str(uuid.uuid4()),
+                                             analysis_header=hdr_id,
+                                             time=time.time(),
+                                             exit_status='test')
+        return did
 
     def test_tail_insert(self):
-        pass
+        pytest.raises(TypeError, self.conn.insert_analysis_tail)
+        t_uid = str(uuid.uuid4())
+        t = self.conn.insert_analysis_tail(uid=t_uid,
+                                           analysis_header=self.generate_ahdr(),
+                                           time=time.time(), exit_status='test')
+        t_uid == t
+
+
 
     def test_dref_header_insert(self):
-        pass
+        pytest.raises(TypeError, self.conn.insert_data_reference_header)
+        dh_uid = str(uuid.uuid4())
+        dh_id = self.conn.insert_data_reference_header(analysis_header=self.generate_ahdr(),
+                                                       time=time.time(),
+                                                       uid=dh_uid,
+                                                       data_keys={})
+        dh_id == dh_uid
+
 
     def test_dref_insert(self):
         pass
@@ -75,7 +109,6 @@ class TestConnClient:
 
     def test_dref_find(self):
         pass
-
 
     def teardown_class(self):
         astore_teardown(self.proc)
