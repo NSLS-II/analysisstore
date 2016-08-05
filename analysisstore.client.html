@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>analysisstore.client package &mdash; analysisstore 1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="analysisstore 1 documentation" href="index.html"/>
+        <link rel="up" title="Analysisstore API Docs" href="analysisstore.html"/>
+        <link rel="next" title="analysisstore.server package" href="analysisstore.server.html"/>
+        <link rel="prev" title="Analysisstore API Docs" href="analysisstore.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> analysisstore
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">analysisstore</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html">Document Types</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="analysisstore.html">Analysisstore API Docs</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="analysisstore.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">analysisstore.client package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="analysisstore.server.html">analysisstore.server package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="analysisstore.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysisstore.html#module-analysisstore.ignition">analysisstore.ignition module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysisstore.html#analysisstore-setup-module">analysisstore.setup module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysisstore.html#module-analysisstore">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="startup.html">startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">analysisstore</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="modules.html">analysisstore</a> &raquo;</li>
+      
+          <li><a href="analysisstore.html">Analysisstore API Docs</a> &raquo;</li>
+      
+    <li>analysisstore.client package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/analysisstore.client.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="analysisstore-client-package">
+<h1>analysisstore.client package<a class="headerlink" href="#analysisstore-client-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-analysisstore.client.asutils">
+<span id="analysisstore-client-asutils-module"></span><h2>analysisstore.client.asutils module<a class="headerlink" href="#module-analysisstore.client.asutils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="analysisstore.client.asutils.doc_or_uid_to_uid">
+<code class="descclassname">analysisstore.client.asutils.</code><code class="descname">doc_or_uid_to_uid</code><span class="sig-paren">(</span><em>doc_or_uid</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.asutils.doc_or_uid_to_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given Document or uid return the uid
+Parameters
+&#8212;&#8212;&#8212;-
+doc_or_uid : dict or str</p>
+<blockquote>
+<div>If str, then assume uid and pass through, if not, return
+the &#8216;uid&#8217; field</div></blockquote>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>A string version of the uid of the given document</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysisstore.client.asutils.get_document">
+<code class="descclassname">analysisstore.client.asutils.</code><code class="descname">get_document</code><span class="sig-paren">(</span><em>url</em>, <em>doc_type</em>, <em>as_json</em>, <em>contents</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.asutils.get_document" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="analysisstore.client.asutils.post_document">
+<code class="descclassname">analysisstore.client.asutils.</code><code class="descname">post_document</code><span class="sig-paren">(</span><em>url</em>, <em>contents</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.asutils.post_document" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="analysisstore.client.asutils.read_from_json">
+<code class="descclassname">analysisstore.client.asutils.</code><code class="descname">read_from_json</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.asutils.read_from_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="analysisstore.client.asutils.write_to_json">
+<code class="descclassname">analysisstore.client.asutils.</code><code class="descname">write_to_json</code><span class="sig-paren">(</span><em>payload</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.asutils.write_to_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-analysisstore.client.commands">
+<span id="analysisstore-client-commands-module"></span><h2>analysisstore.client.commands module<a class="headerlink" href="#module-analysisstore.client.commands" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="analysisstore.client.commands.AnalysisClient">
+<em class="property">class </em><code class="descclassname">analysisstore.client.commands.</code><code class="descname">AnalysisClient</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Client used to pass messages between analysisstore server and apps</p>
+<dl class="attribute">
+<dt id="analysisstore.client.commands.AnalysisClient.aheader_url">
+<code class="descname">aheader_url</code><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.aheader_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL for analysis header handler</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="analysisstore.client.commands.AnalysisClient.atail_url">
+<code class="descname">atail_url</code><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.atail_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL for analysis tail handler</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.connection_status">
+<code class="descname">connection_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.connection_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the connection status</p>
+<dl class="docutils">
+<dt>bool</dt>
+<dd>Returns True if connected</dd>
+</dl>
+<dl class="docutils">
+<dt>tornado.web.HTTPError</dt>
+<dd>Raises 404 if no server to be found</dd>
+</dl>
+<dl class="docutils">
+<dt>True</dt>
+<dd>True if connected to a tornado server</dd>
+<dt>False</dt>
+<dd>False if no tornado server found</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="analysisstore.client.commands.AnalysisClient.dref_header_url">
+<code class="descname">dref_header_url</code><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.dref_header_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL for data reference header handler</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="analysisstore.client.commands.AnalysisClient.dref_url">
+<code class="descname">dref_url</code><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.dref_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL for data reference handler</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.find">
+<code class="descname">find</code><span class="sig-paren">(</span><em>doc_type</em>, <em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given document type and search parameters, query the database and return docs that match the criteria.
+This is provided as a convenience routine. Instead of using find_*, one can use this routine.</p>
+<dl class="docutils">
+<dt>doc_type</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>Document type query will be performed on</dd>
+</dl>
+<p>query : dict</p>
+<dl class="docutils">
+<dt>list</dt>
+<dd>The outcome of the query performed against the Mongo daemon</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.find_analysis_header">
+<code class="descname">find_analysis_header</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.find_analysis_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of parameters, return analysis header(s) that match the provided criteria</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.find_analysis_tail">
+<code class="descname">find_analysis_tail</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.find_analysis_tail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of parameters, return analysis tail(s) that match the provided criteria</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.find_data_reference">
+<code class="descname">find_data_reference</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.find_data_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of parameters, return data reference(s) that match the provided criteria</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.find_data_reference_header">
+<code class="descname">find_data_reference_header</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.find_data_reference_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of parameters, return data reference header(s) that match the provided criteria</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>url</em>, <em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets data to the server. For query operations
+Parameters
+&#8212;&#8212;&#8212;-
+url : str</p>
+<blockquote>
+<div>The address of the post</div></blockquote>
+<dl class="docutils">
+<dt>query</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>A special signature and data for this service</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.HTTPError</dt>
+<dd>In case get fails (status_code != 200)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><em>doc_type</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.insert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.insert_analysis_header">
+<code class="descname">insert_analysis_header</code><span class="sig-paren">(</span><em>uid</em>, <em>time</em>, <em>provenance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.insert_analysis_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the entry point for data analysis.</p>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>Unique identifier for analysis_header document</dd>
+<dt>time</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Time entry created. If not filled, server assigns a timestamp</dd>
+<dt>provenance</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>Provenance information for this data analysis to be recorded</dd>
+<dt>kwargs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>Additional fields.</dd>
+</dl>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>uid of the document inserted</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.insert_analysis_tail">
+<code class="descname">insert_analysis_tail</code><span class="sig-paren">(</span><em>analysis_header</em>, <em>uid</em>, <em>time</em>, <em>exit_status</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.insert_analysis_tail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the exit point for data analysis.</p>
+<dl class="docutils">
+<dt>analysis_header</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str, doct.Document</span><dd>Foreign key for the analysis_header this tail points to</dd>
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>Unique identifier for analysis_tail document.</dd>
+<dt>time</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Time entry created. If not filled, server assigns a timestamp.</dd>
+<dt>exit_status</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>String indicator for data analysis.</dd>
+<dt>kwargs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>Additional fields.</dd>
+</dl>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>uid of the document inserted</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.insert_bulk_data_reference">
+<code class="descname">insert_bulk_data_reference</code><span class="sig-paren">(</span><em>data_header</em>, <em>data</em>, <em>chunk_size=500</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.insert_bulk_data_reference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.insert_data_reference">
+<code class="descname">insert_data_reference</code><span class="sig-paren">(</span><em>data_header</em>, <em>uid</em>, <em>time</em>, <em>data</em>, <em>timestamps</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.insert_data_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create data reference document
+Parameters
+&#8212;&#8212;&#8212;-
+data_header : doct.Document or uid</p>
+<blockquote>
+<div>data_reference_header document this tail points to. Foreign key to the data_reference_header.</div></blockquote>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>Unique identifier for data_reference document</dd>
+<dt>time</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Time document was created. Server fills up this field if not provided</dd>
+<dt>kwargs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>Additional fields</dd>
+</dl>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>uid of the inserted document</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.insert_data_reference_header">
+<code class="descname">insert_data_reference_header</code><span class="sig-paren">(</span><em>analysis_header</em>, <em>uid</em>, <em>time</em>, <em>data_keys</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.insert_data_reference_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create data reference header document
+Parameters
+&#8212;&#8212;&#8212;-
+analysis_header : doct.Document or uid</p>
+<blockquote>
+<div>analysis_header document this tail points to. Foreign key to the analysis_header.</div></blockquote>
+<dl class="docutils">
+<dt>uid</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>Unique identifier for data_reference_header document.</dd>
+<dt>time</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>Time document was created. Server fills up this field if not provided</dd>
+<dt>kwargs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>Additional fields</dd>
+</dl>
+<dl class="docutils">
+<dt>res</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">str</span><dd>uid of the inserted document</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>url</em>, <em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Posts data to the server. For insert operations
+Parameters
+&#8212;&#8212;&#8212;-
+url : str</p>
+<blockquote>
+<div>The address of the post</div></blockquote>
+<dl class="docutils">
+<dt>params</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>A special signature and data for this service</dd>
+</dl>
+<dl class="docutils">
+<dt>requests.HTTPError</dt>
+<dd>In case post fails (status_code != 200)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.update_analysis_header">
+<code class="descname">update_analysis_header</code><span class="sig-paren">(</span><em>query</em>, <em>update</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.update_analysis_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not yet implemented</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="analysisstore.client.commands.AnalysisClient.update_analysis_tail">
+<code class="descname">update_analysis_tail</code><span class="sig-paren">(</span><em>query</em>, <em>update</em><span class="sig-paren">)</span><a class="headerlink" href="#analysisstore.client.commands.AnalysisClient.update_analysis_tail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not yet implemented</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-analysisstore.client">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-analysisstore.client" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="analysisstore.server.html" class="btn btn-neutral float-right" title="analysisstore.server package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="analysisstore.html" class="btn btn-neutral" title="Analysisstore API Docs" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Arman Arkilic.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

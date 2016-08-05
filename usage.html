@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Document Types &mdash; analysisstore 1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="analysisstore 1 documentation" href="index.html"/>
+        <link rel="up" title="analysisstore" href="modules.html"/>
+        <link rel="next" title="Analysisstore API Docs" href="analysisstore.html"/>
+        <link rel="prev" title="Introduction" href="introduction.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> analysisstore
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">analysisstore</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Document Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#analysisheader">AnalysisHeader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#datareferenceheader">DataReferenceHeader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#datareference">DataReference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analysistail">AnalysisTail</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="analysisstore.html">Analysisstore API Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="startup.html">startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">analysisstore</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="modules.html">analysisstore</a> &raquo;</li>
+      
+    <li>Document Types</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/usage.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="document-types">
+<h1>Document Types<a class="headerlink" href="#document-types" title="Permalink to this headline">¶</a></h1>
+<p>Analysisstore is built on a similar data model to <a class="reference external" href="https://nsls-ii.github.io/architecture-overview.html">metadatastore</a>. AnalysisHeader document is the point of entry for creating a trace for any sort of data analysis. One can think of this as the head of the linked-list.</p>
+<div class="section" id="analysisheader">
+<h2>AnalysisHeader<a class="headerlink" href="#analysisheader" title="Permalink to this headline">¶</a></h2>
+<p>In order to start saving a data analysis process and its associated files, an AnalysisHeader document must be created.
+This document requires uid, time, and provenance. As in our other services, uid and time are used for uniqueness and
+conveniently pinpointing data. &#8216;provenance&#8217; is the dictionary that enforces the place of origin of this data analysis stream.
+This simple yet flexible
+name-value structure allows users to keep track of the chronology of analysis performed on a given data stream.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Meta-data regrading slow-chaning configuration, such as equipment specifications and calibration&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;provenance&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Meta-data regrading set of tasks that generated this analysis data&quot;</span>
+        <span class="p">},</span>
+
+        <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Name of project that this run is part of&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;UID to another collection in amostra&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;beamline_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The beamline ID&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;scan_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Scan ID number, not globally unique&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Time the run started.  Unix epoch time&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Globally unique ID for tihs run&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unix group to associate this data with&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unix owner to associate this data with&quot;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;uid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;provenance&quot;</span>
+     <span class="p">],</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Header of the analysis data. No real data in this header but metadata that allows us locate data&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="datareferenceheader">
+<h2>DataReferenceHeader<a class="headerlink" href="#datareferenceheader" title="Permalink to this headline">¶</a></h2>
+<p>Some sort of meaningful information must be kept in order for data stream to be retrieved/processed.
+The flexible documents allow any metadata as a mean of convenience, however additional information
+such as shape, source, data type, units, etc. of a data stream are essential to data analysis.
+In order to enforce this, analysisstore introduces DataReferenceHeader.
+As each DataReferenceDocument acts as a header for a data stream, a data_keys field is introduced, providing
+users a convenient way to store information mentioned above. In addition to data_keys, uid, analysis_header(foreign_key), and tim
+are also required.
+Given a single AnalysisHeader, users can define multiple DataReferenceHeaders that describe the contents of
+multiple data streams.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+       <span class="s2">&quot;definitions&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;data_key&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;data_key&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Describes the objects in the data property of data_reference documents&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                   <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="p">{</span>
+                       <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span>
+                           <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;array&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;integer&quot;</span>
+                       <span class="p">],</span>
+                       <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The type of the data in the data_reference.&quot;</span>
+                   <span class="p">},</span>
+                   <span class="s2">&quot;external&quot;</span><span class="p">:</span> <span class="p">{</span>
+                       <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;^[A-Z]+:?&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Where the data is stored if it is stored external to the data_references.&quot;</span>
+                   <span class="p">},</span>
+                   <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="p">{</span>
+                       <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">{</span>
+                           <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span>
+                       <span class="p">},</span>
+                       <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The shape of the data.  Null and empty list mean scalar data.&quot;</span>
+                   <span class="p">},</span>
+                   <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">{</span>
+                       <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The source (ex piece of hardware) of the data.&quot;</span>
+                   <span class="p">}</span>
+               <span class="p">},</span>
+               <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span>
+                   <span class="s2">&quot;source&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;dtype&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;shape&quot;</span>
+               <span class="p">],</span>
+               <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span>
+           <span class="p">}</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;data_keys&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;additionalProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                   <span class="s2">&quot;$ref&quot;</span><span class="p">:</span> <span class="s2">&quot;#/definitions/data_key&quot;</span>
+               <span class="p">},</span>
+               <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The describes the data to be in the data_reference Documents&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;data_keys&quot;</span>
+           <span class="p">},</span>
+           <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Globally unique ID for this data_reference descriptor.&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;uid&quot;</span>
+           <span class="p">},</span>
+           <span class="s2">&quot;analysis_header&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Globally unique ID to the analysis_header document this descriptor is associtaed with.&quot;</span>
+           <span class="p">},</span>
+           <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Creation time of the document as unix epoch time.&quot;</span>
+           <span class="p">}</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span>
+           <span class="s2">&quot;uid&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;data_keys&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;analysis_header&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;time&quot;</span>
+       <span class="p">],</span>
+       <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;data_reference_header&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Document to describe the data captured in the associated data_reference documents&quot;</span>
+   <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="datareference">
+<h2>DataReference<a class="headerlink" href="#datareference" title="Permalink to this headline">¶</a></h2>
+<p>Each data reference stands for a single point in the data stream. This point is not unique to a single data_key but
+collection of data_keys. In other words, a DataReference document contains multiple data points and their corresponding
+timestamps. DataReference documents can contain links to filestore as well as other services.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The actual analyzed data&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;timestamps&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The timestamps of the individual analyzed data&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;data_reference_header&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;UID to point back to Descriptor for this data_reference stream&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;seq_num&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Sequence number to identify the location of this data_reference in the data_reference stream&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The data_reference time.  This maybe different than the timestamps on each of the data entries&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Globally unique identifier for this data_reference&quot;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;uid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;timestamps&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_reference_header&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;seq_num&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;additionalProperties&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;data_reference&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Document to record a quanta of collected data&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="analysistail">
+<h2>AnalysisTail<a class="headerlink" href="#analysistail" title="Permalink to this headline">¶</a></h2>
+<p>Once data analysis is concluded, AnalysisTail is required in order to successfully locate the set of data analysis
+documents mentioned earlier. The purpose of this document is to simply state the success/failure of the data analysis.
+In addition to this, any sort of metadata can be stored within this document, in case user would like to keep for future
+analysis purposes.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+     <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s2">&quot;analysis_header&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Reference back to the analysis_header document that this document is paired with.&quot;</span>
+         <span class="p">},</span>
+         <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Long-form description of why the run ended&quot;</span>
+         <span class="p">},</span>
+         <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The time the run ended. Unix epoch&quot;</span>
+         <span class="p">},</span>
+         <span class="s2">&quot;analysis_status&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="s2">&quot;raw&quot;</span><span class="p">],</span>
+             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;State of the analysis when it ended&quot;</span>
+         <span class="p">},</span>
+         <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Globally unique ID for tihs run&quot;</span>
+         <span class="p">}</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="s2">&quot;uid&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;analysis_header&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;exit_status&quot;</span>
+     <span class="p">],</span>
+     <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Document for the end of a analysis indicating the success/fail state of the run and the end time&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="analysisstore.html" class="btn btn-neutral float-right" title="Analysisstore API Docs" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Arman Arkilic.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
