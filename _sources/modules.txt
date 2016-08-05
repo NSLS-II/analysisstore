@@ -6,6 +6,6 @@ analysisstore
 
    introduction
    usage
+   client_docs   
    analysisstore
-   startup
-   examples
+
