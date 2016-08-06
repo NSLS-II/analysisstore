@@ -74,7 +74,7 @@ DataReferenceHeader
 --------------------
 
 Some sort of meaningful information must be kept in order for data stream to be retrieved/processed.
-The flexible documents allow any metadata as a mean of convenience, however additional information
+The flexible documents allow any metadata as a means of convenience, however additional information
 such as shape, source, data type, units, etc. of a data stream are essential to data analysis.
 In order to enforce this, analysisstore introduces DataReferenceHeader.
 As each DataReferenceDocument acts as a header for a data stream, a data_keys field is introduced, providing
