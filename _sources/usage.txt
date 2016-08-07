@@ -74,11 +74,11 @@ DataReferenceHeader
 --------------------
 
 Some sort of meaningful information must be kept in order for data stream to be retrieved/processed.
-The flexible documents allow any metadata as a mean of convenience, however additional information
+The flexible documents allow any metadata as a means of convenience, however additional information
 such as shape, source, data type, units, etc. of a data stream are essential to data analysis.
 In order to enforce this, analysisstore introduces DataReferenceHeader.
 As each DataReferenceDocument acts as a header for a data stream, a data_keys field is introduced, providing
-users a convenient way to store information mentioned above. In addition to data_keys, uid, analysis_header(foreign_key), and tim
+users a convenient way to store information mentioned above. In addition to data_keys, uid, analysis_header(foreign_key), and time
 are also required.
 Given a single AnalysisHeader, users can define multiple DataReferenceHeaders that describe the contents of 
 multiple data streams.
