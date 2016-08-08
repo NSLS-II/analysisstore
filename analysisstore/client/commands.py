@@ -18,7 +18,7 @@ class AnalysisClient:
                              'analysis_tail': self.insert_analysis_tail,
                              'data_reference_header': self.insert_data_reference_header,
                              'data_reference': self.insert_data_reference,
-                             'bulk_data_reference': self.insert_bulk_data_reference}
+                             'bulk_data_reference': self.bulk_data_reference_insert}
         self._find_dict = {'analysis_header': self.find_analysis_header,
                            'analysis_tail': self.find_analysis_tail,
                            'data_reference_header': self.find_data_reference_header,
@@ -267,14 +267,18 @@ class AnalysisClient:
         uid = asutils.post_document(url=self.dref_url, contents=params)
         return uid
 
-    def insert_bulk_data_reference(self, data_header, data, chunk_size=500, **kwargs):
-        # TODO: data_header to be replaced with uid in all data_ref docs?
-        data_len = len(data)
-        chunk_count = data_len // chunk_size + bool(data_len % chunk_size)
-        chunks = self.grouper(data, chunk_count)
-        for c in chunks:
-            payload = ujson.dumps(list(c))
-            asutils.post_document(url=self.dref_url, contents=payload)
+    def bulk_data_reference_insert(self, data_header, data_references,
+                                   **kwargs):
+        dhdr = self._doc_or_uid_to_uid(data_header)
+        uids = []
+        for d in data_references:
+            d['data_reference_header'] = dhdr
+            uids.append(d['uid'])
+        payload = dict(data_header=dhdr, data_references=data_references)
+        params = self._post_factory(payload=payload,
+                                    signature='bulk_data_reference_insert')
+        asutils.post_document(url=self.dref_url, contents=params)
+        return uids
 
     def update_analysis_header(self, query, update):
         """ Not yet implemented"""

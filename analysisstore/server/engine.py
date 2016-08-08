@@ -166,5 +166,6 @@ class DataReferenceHandler(DefaultHandler):
     @tornado.web.asynchronous
     def initialize(self):
         self.astore = self.settings['astore']
-        self.insertables = dict(insert_data_reference=self.astore.insert_data_reference)
+        self.insertables = dict(insert_data_reference=self.astore.insert_data_reference,
+                                bulk_data_reference_insert=self.astore.bulk_data_reference_insert)
         self.queryables = {'find_data_reference': self.astore.find_data_reference}
