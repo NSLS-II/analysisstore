@@ -5,7 +5,7 @@ analysisstore
    :maxdepth: 4
 
    introduction
-   applications
-   examples
-   clients
+   usage
+   client_docs   
    analysisstore
+

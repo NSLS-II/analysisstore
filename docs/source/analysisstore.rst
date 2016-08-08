@@ -1,4 +1,4 @@
-analysisstore package
+Analysisstore API Docs
 =====================
 
 Subpackages

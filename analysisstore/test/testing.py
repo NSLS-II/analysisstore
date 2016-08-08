@@ -25,7 +25,7 @@ def astore_setup():
                                  "--timezone", TESTING_CONFIG['timezone'],
                                  "--service-port",
                                  str(TESTING_CONFIG['serviceport'])], cwd=f)
-    ttime.sleep(0.5) # make sure the process is started
+    ttime.sleep(1.3) # make sure the process is started
     return proc
 
 
@@ -35,4 +35,5 @@ def astore_teardown(proc):
     conn = MongoClient(host=TESTING_CONFIG['mongohost'],
                        port=TESTING_CONFIG['mongoport'])
     conn.drop_database(TESTING_CONFIG['database'])
-    ttime.sleep(0.5)
+    print('\nTearing down the server and dropping the db\n')
+    ttime.sleep(1.3)

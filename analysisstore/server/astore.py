@@ -45,7 +45,7 @@ class AStore:
                                                   unique=True)
         self.database.data_reference.create_index([('data_reference_header',
                                                     DESCENDING)],
-                                                  unique=True)
+                                                  unique=False)
 
     def doc_or_uid_to_uid(self, doc_or_uid):
         """Given Document or uid return the uid
@@ -148,6 +148,16 @@ class AStore:
         self.database.data_reference_header.insert(doc)
         return uid
 
+    def bulk_data_reference_insert(self, data_header, data_references):
+        try:
+            dhdr = self.extract_verify_dhdr(data_header)
+        except RuntimeError:
+            dhdr = self.doc_or_uid_to_uid(data_header)
+        res = self.database.data_reference.insert_many(data_references,
+                                                       ordered=False)
+        print('inserted the bulk')
+        return True
+
     def insert_data_reference(self, time, uid, data_reference_header,
                               data, timestamps, **kwargs):
         """
@@ -155,7 +165,8 @@ class AStore:
         Parameters
         ----------
         data_header : doct.Document or uid
-            data_reference_header document this tail points to. Foreign key to the data_reference_header.
+            data_reference_header document this tail points to. Foreign key to
+            the data_reference_header.
         uid : str
             Unique identifier for data_reference document
         time : float
