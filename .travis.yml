@@ -1,0 +1,28 @@
+language: python
+sudo: false
+
+services:
+  - mongodb
+
+python:
+  - 3.4
+  - 3.5
+
+before_install:
+  - git clone https://github.com/nsls-ii/nsls2-ci ~/scripts
+  - . ~/scripts/install-miniconda.sh
+  - mkdir ~/tmp_files
+
+install:
+  - conda create -n testenv --yes nose python=$TRAVIS_PYTHON_VERSION pymongo ujson tornado jsonschema pyyaml pytz doct
+  - source activate testenv
+  - pip install coveralls codecov mongoquery requests pytest pytest-cov
+
+script:
+  - nohup python startup.py --mongo-host localhost --mongo-port 27017 --timezone US/Easternm --database analysisstore_test --service-port 7770  &
+  - py.test -sv --cov=analysisstore --cov-report term-missing
+
+after_success:
+  - coveralls
+  - codecov
+  - rm -r ~/tmp_files
