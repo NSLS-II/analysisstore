@@ -49,7 +49,7 @@ name-value structure allows users to keep track of the chronology of analysis pe
                 },
                 "uid": {
                     "type": "string",
-                    "description": "Globally unique ID for tihs run"
+                    "description": "Globally unique ID for this run"
                 },
                 "group": {
                     "type": "string",
