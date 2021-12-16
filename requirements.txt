@@ -7,3 +7,4 @@ pyyaml
 requests
 tornado<5
 ujson
+versioneer
