@@ -11,6 +11,8 @@ except ImportError:
 import versioneer
 import os
 
+here = os.path.abspath(os.path.dirname(__file__))
+
 with open(os.path.join(here, "README.md"), encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
