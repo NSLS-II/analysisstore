@@ -11,6 +11,12 @@ except ImportError:
 import versioneer
 import os
 
+with open(path.join(here, "README.md"), encoding="utf-8") as readme_file:
+    readme = readme_file.read()
+
+with open(path.join(here, "requirements.txt")) as requirements_file:
+    # Parse requirements.txt, ignoring any commented-out lines.
+    requirements = [line for line in requirements_file.read().splitlines() if not line.startswith("#")]
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
