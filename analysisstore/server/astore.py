@@ -116,7 +116,7 @@ class AStore:
             Unique identifier of the document inserted
         """
         doc = dict(time=time, uid=uid, provenance=provenance, **kwargs)
-        self.database.analysis_header.insert(doc)
+        self.database.analysis_header.insert_one(doc)
         return uid
 
     def insert_data_reference_header(self, time, uid, analysis_header,
@@ -145,7 +145,7 @@ class AStore:
         doc = dict(time=time, uid=uid, analysis_header=analysis_header,
                    data_keys=data_keys,
                    **kwargs)
-        self.database.data_reference_header.insert(doc)
+        self.database.data_reference_header.insert_one(doc)
         return uid
 
     def bulk_data_reference_insert(self, data_header, data_references):
@@ -185,7 +185,7 @@ class AStore:
             dhdr = self.doc_or_uid_to_uid(data_reference_header)
         doc = dict(time=time, uid=uid, data_reference_header=dhdr,
                    data=data, timestamps=timestamps, **kwargs)
-        self.database.data_reference.insert(doc)
+        self.database.data_reference.insert_one(doc)
         return uid
 
     def insert_analysis_tail(self, time, uid, analysis_header, exit_status,
@@ -213,7 +213,7 @@ class AStore:
             hdr = self.doc_or_uid_to_uid(analysis_header)
         doc = dict(time=time, uid=uid, analysis_header=analysis_header,
                    exit_status=exit_status, **kwargs)
-        self.database.analysis_tail.insert(doc)
+        self.database.analysis_tail.insert_one(doc)
         return uid
 
     def _clean_ids(self, cursor):
