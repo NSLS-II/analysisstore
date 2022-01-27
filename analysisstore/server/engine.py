@@ -1,4 +1,5 @@
 from __future__ import (absolute_import, print_function)
+from tornado import gen
 import tornado.ioloop
 import tornado.web
 import pymongo
@@ -17,7 +18,7 @@ class DefaultHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.astore = self.settings['astore']
 
-    @tornado.web.asynchronous
+    @gen.coroutine
     def set_default_headers(self):
         self.set_header('Access-Control-Allow-Origin', '*')
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
@@ -40,7 +41,7 @@ class DefaultHandler(tornado.web.RequestHandler):
         fmsg = str(status) + ' ' + str(mstr)
         raise tornado.web.HTTPError(status_code=code, reason=fmsg)
 
-    @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
         query = self.load_query()
         try:
@@ -59,7 +60,7 @@ class DefaultHandler(tornado.web.RequestHandler):
             self.write(json.dumps(list(docs_gen)))
         self.finish()
 
-    @tornado.web.asynchronous
+    @gen.coroutine
     def post(self):
         data = self.load_data()
         try:
@@ -89,7 +90,7 @@ class DefaultHandler(tornado.web.RequestHandler):
 
 
 class ConnStatHandler(DefaultHandler):
-    @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
         self.finish()
 
@@ -144,7 +145,7 @@ class DataReferenceHeaderHandler(DefaultHandler):
         Insert a event_header document.Same validation method as bluesky, secondary
         safety net.
     """
-    @tornado.web.asynchronous
+    @gen.coroutine
     def initialize(self):
         self.astore = self.settings['astore']
         self.insertables = dict(insert_data_reference_header=self.astore.insert_data_reference_header)
@@ -163,7 +164,7 @@ class DataReferenceHandler(DefaultHandler):
         Insert a event document.Same validation method as bluesky, secondary
         safety net.
     """
-    @tornado.web.asynchronous
+    @gen.coroutine
     def initialize(self):
         self.astore = self.settings['astore']
         self.insertables = dict(insert_data_reference=self.astore.insert_data_reference,
