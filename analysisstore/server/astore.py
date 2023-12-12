@@ -15,7 +15,7 @@ class AStore:
         config: dict
             uri in string format, and database
         """
-        self.client = MongoClient(uri=config['uri'])
+        self.client = MongoClient(config['uri'])
         self.database = self.client[config['database']]
         self.database.analysis_header.create_index([('uid', DESCENDING)],
                                                     unique=True,
