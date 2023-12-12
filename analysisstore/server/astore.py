@@ -6,17 +6,16 @@ import six
 
 class AStore:
     def __init__(self, config):
-        """Given a database configuration that consists of host, port, and
+        """Given a database configuration that consists of uri and
         database, instantiate an AStore object that handles the connections
         to the database.
 
         Parameters
         -----------
         config: dict
-            host, port in integer format, and database
+            uri in string format, and database
         """
-        self.client = MongoClient(host=config['host'],
-                             port=config['port'])
+        self.client = MongoClient(uri=config['uri'])
         self.database = self.client[config['database']]
         self.database.analysis_header.create_index([('uid', DESCENDING)],
                                                     unique=True,

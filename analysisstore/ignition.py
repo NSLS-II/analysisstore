@@ -29,7 +29,7 @@ def start_server(config=None):
     if not config:
         try:
             config = {k: v for k, v in load_configuration('analysisstore', 'ASST',
-                                                          ['mongo_host', 'mongo_port', 'timezone',
+                                                          ['mongo_uri', 'timezone',
                                                            'database', 'service_port'],
                                                           allow_missing=True).items() if v is not None}
         except (KeyError, TypeError):
@@ -37,13 +37,11 @@ def start_server(config=None):
         parser = argparse.ArgumentParser()
         parser.add_argument('--database', dest='database', type=str,
                             help='name of database to use')
-        parser.add_argument('--mongo-host',
-                             dest='mongo_host', type=str,
-                            help='host to use')
+        parser.add_argument('--mongo-uri',
+                             dest='mongo_uri', type=str,
+                            help='uri of Mongo DB')
         parser.add_argument('--timezone', dest='timezone', type=str,
                             help='Local timezone')
-        parser.add_argument('--mongo-port', dest='mongo_port', type=int,
-                            help='port to use to talk to mongo')
         parser.add_argument('--service-port', dest='service_port', type=int,
                             help='port listen to for clients')
         parser.add_argument('--log-file_prefix', dest='log_file_prefix', type=str,
@@ -51,19 +49,16 @@ def start_server(config=None):
         args = parser.parse_args()
         if args.database is not None:
             config['database'] = args.database
-        if args.mongo_host is not None:
-            config['mongo_host'] = args.mongo_host
+        if args.mongo_uri is not None:
+            config['mongo_uri'] = args.mongo_uri
         if args.timezone is not None:
             config['timezone'] = args.timezone
-        if args.mongo_port is not None:
-            config['mongo_port'] = args.mongo_port
         if args.service_port is not None:
             config['service_port'] = args.service_port
         if not config:
             raise KeyError('No configuration provided. Provide config file or command line args')
     tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
-    cfg = dict(host=config['mongo_host'], port=config['mongo_port'],
-               database=config['database'])
+    cfg = dict(uri=config['mongo_uri'], database=config['database'])
     astore = AStore(cfg)
     application = tornado.web.Application([(r'/analysis_header', AnalysisHeaderHandler),
                                            (r'/data_reference', DataReferenceHandler),
