@@ -60,4 +60,5 @@ setup(
         "Development Status :: 3 - Alpha",
         'Programming Language :: Python :: 3',
     ],
+    entry_points={"console_scripts": ["analysisstore_startup = analysisstore.startup:start_server"]},
 )
