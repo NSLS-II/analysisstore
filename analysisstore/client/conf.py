@@ -1,5 +1,4 @@
-
-host = 'localhost'
+host = "localhost"
 port = 8999
 
-top_dir = '~/analysisstore'
+top_dir = "~/analysisstore"

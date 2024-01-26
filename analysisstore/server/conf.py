@@ -32,33 +32,36 @@ def load_configuration(name, prefix, fields):
     conf : dict
         Dictionary keyed on ``fields`` with the values extracted
     """
-    filenames = [os.path.join('/etc', name + '.yml'),
-                 os.path.join(os.path.expanduser('~'), '.config',
-                              name, 'connection.yml'),
-                ]
-    if 'CONDA_ETC_' in os.environ:
-        filenames.insert(0, os.path.join(os.environ['CONDA_ETC_'],
-                                         name + '.yml'))
+    filenames = [
+        os.path.join("/etc", name + ".yml"),
+        os.path.join(os.path.expanduser("~"), ".config", name, "connection.yml"),
+    ]
+    if "CONDA_ETC_" in os.environ:
+        filenames.insert(0, os.path.join(os.environ["CONDA_ETC_"], name + ".yml"))
 
     config = {}
     for filename in filenames:
         if os.path.isfile(filename):
             with open(filename) as f:
                 config.update(yaml.load(f))
-            logger.debug("Using db connection specified in config file. \n%r",
-                         config)
+            logger.debug("Using db connection specified in config file. \n%r", config)
 
     for field in fields:
-        var_name = prefix + '_' + field.upper().replace(' ', '_')
+        var_name = prefix + "_" + field.upper().replace(" ", "_")
         config[field] = os.environ.get(var_name, config.get(field, None))
 
     missing = [k for k, v in config.items() if v is None]
     if missing:
-        raise KeyError("The configuration field(s) {0} were not found in any "
-                       "file or environmental variable.".format(missing))
+        raise KeyError(
+            "The configuration field(s) {0} were not found in any "
+            "file or environmental variable.".format(missing)
+        )
     return config
+
+
 try:
-    connection_config = load_configuration('analysisstore', 'AB',
-                                           ['host', 'port', 'timezone'])
+    connection_config = load_configuration(
+        "analysisstore", "AB", ["host", "port", "timezone"]
+    )
 except KeyError:
     connection_config = dict()

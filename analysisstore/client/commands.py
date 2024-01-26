@@ -1,4 +1,4 @@
-from __future__ import (absolute_import, unicode_literals, print_function)
+from __future__ import absolute_import, unicode_literals, print_function
 import requests
 import ujson
 from itertools import zip_longest
@@ -8,46 +8,50 @@ from requests.exceptions import ConnectionError
 from . import asutils
 
 
-
 class AnalysisClient:
     """Client used to pass messages between analysisstore server and apps"""
+
     def __init__(self, config):
-        self.host = config['host']
-        self.port = config['port']
-        self._insert_dict = {'analysis_header': self.insert_analysis_header,
-                             'analysis_tail': self.insert_analysis_tail,
-                             'data_reference_header': self.insert_data_reference_header,
-                             'data_reference': self.insert_data_reference,
-                             'bulk_data_reference': self.bulk_data_reference_insert}
-        self._find_dict = {'analysis_header': self.find_analysis_header,
-                           'analysis_tail': self.find_analysis_tail,
-                           'data_reference_header': self.find_data_reference_header,
-                           'data_reference': self.find_data_reference}
+        self.host = config["host"]
+        self.port = config["port"]
+        self._insert_dict = {
+            "analysis_header": self.insert_analysis_header,
+            "analysis_tail": self.insert_analysis_tail,
+            "data_reference_header": self.insert_data_reference_header,
+            "data_reference": self.insert_data_reference,
+            "bulk_data_reference": self.bulk_data_reference_insert,
+        }
+        self._find_dict = {
+            "analysis_header": self.find_analysis_header,
+            "analysis_tail": self.find_analysis_tail,
+            "data_reference_header": self.find_data_reference_header,
+            "data_reference": self.find_data_reference,
+        }
 
     @property
     def _host_url(self):
         """URL to the tornado instance"""
-        return 'http://{}:{}/'.format(self.host, self.port)
+        return "http://{}:{}/".format(self.host, self.port)
 
     @property
     def aheader_url(self):
         """URL for analysis header handler"""
-        return self._host_url + 'analysis_header'
+        return self._host_url + "analysis_header"
 
     @property
     def atail_url(self):
         """URL for analysis tail handler"""
-        return self._host_url + 'analysis_tail'
+        return self._host_url + "analysis_tail"
 
     @property
     def dref_url(self):
         """URL for data reference handler"""
-        return self._host_url + 'data_reference'
+        return self._host_url + "data_reference"
 
     @property
     def dref_header_url(self):
         """URL for data reference header handler"""
-        return self._host_url + 'data_reference_header'
+        return self._host_url + "data_reference_header"
 
     def _grouper(self, iterable, n, fillvalue=None):
         """Collect data into fixed-length chunks or blocks"""
@@ -68,7 +72,7 @@ class AnalysisClient:
             A string version of the uid of the given document
         """
         if not isinstance(doc_or_uid, six.string_types):
-            doc_or_uid = doc_or_uid['uid']
+            doc_or_uid = doc_or_uid["uid"]
         return str(doc_or_uid)
 
     def connection_status(self):
@@ -91,7 +95,7 @@ class AnalysisClient:
         False
             False if no tornado server found
         """
-        r = requests.get(self._host_url + 'is_connected', timeout=0.1)
+        r = requests.get(self._host_url + "is_connected", timeout=0.1)
         try:
             r.raise_for_status()
         except ConnectionError:
@@ -175,12 +179,11 @@ class AnalysisClient:
             uid of the document inserted
         """
         payload = dict(uid=uid, time=time, provenance=provenance, **kwargs)
-        params = self._post_factory(payload=payload, signature='insert_analysis_header')
+        params = self._post_factory(payload=payload, signature="insert_analysis_header")
         self.post(url=self.aheader_url, params=params)
         return uid
 
-    def insert_analysis_tail(self, analysis_header, uid, time,
-                             exit_status, **kwargs):
+    def insert_analysis_tail(self, analysis_header, uid, time, exit_status, **kwargs):
         """
         Create the exit point for data analysis.
 
@@ -203,15 +206,16 @@ class AnalysisClient:
             uid of the document inserted
         """
         hdr = self._doc_or_uid_to_uid(analysis_header)
-        payload = dict(uid=uid, time=time, analysis_header=hdr,
-                       exit_status=exit_status, **kwargs)
-        params = self._post_factory(payload=payload,
-                                    signature='insert_analysis_tail')
+        payload = dict(
+            uid=uid, time=time, analysis_header=hdr, exit_status=exit_status, **kwargs
+        )
+        params = self._post_factory(payload=payload, signature="insert_analysis_tail")
         self.post(url=self.atail_url, params=params)
         return uid
 
-    def insert_data_reference_header(self, analysis_header, uid, time,
-                                     data_keys, **kwargs):
+    def insert_data_reference_header(
+        self, analysis_header, uid, time, data_keys, **kwargs
+    ):
         """
         Create data reference header document
         Parameters
@@ -232,14 +236,16 @@ class AnalysisClient:
         """
         # TODO: Validate data_keys and their format
         hdr = self._doc_or_uid_to_uid(analysis_header)
-        payload = dict(uid=uid, time=time, analysis_header=hdr,
-                       data_keys=data_keys, **kwargs)
-        params = self._post_factory(payload=payload,
-                                    signature='insert_data_reference_header')
+        payload = dict(
+            uid=uid, time=time, analysis_header=hdr, data_keys=data_keys, **kwargs
+        )
+        params = self._post_factory(
+            payload=payload, signature="insert_data_reference_header"
+        )
         self.post(url=self.dref_header_url, params=params)
         return uid
 
-    def insert_data_reference(self,  data_header, uid, time, data, timestamps, **kwargs):
+    def insert_data_reference(self, data_header, uid, time, data, timestamps, **kwargs):
         """
         Create data reference document
         Parameters
@@ -259,57 +265,65 @@ class AnalysisClient:
             uid of the inserted document
         """
         dhdr = self._doc_or_uid_to_uid(data_header)
-        payload = dict(data_reference_header=dhdr,
-                       uid=uid, time=time, data=data, timestamps=timestamps,
-                       **kwargs)
-        params = self._post_factory(payload=payload,
-                                    signature='insert_data_reference')
+        payload = dict(
+            data_reference_header=dhdr,
+            uid=uid,
+            time=time,
+            data=data,
+            timestamps=timestamps,
+            **kwargs
+        )
+        params = self._post_factory(payload=payload, signature="insert_data_reference")
         uid = asutils.post_document(url=self.dref_url, contents=params)
         return uid
 
-    def bulk_data_reference_insert(self, data_header, data_references,
-                                   **kwargs):
+    def bulk_data_reference_insert(self, data_header, data_references, **kwargs):
         dhdr = self._doc_or_uid_to_uid(data_header)
         uids = []
         for d in data_references:
-            d['data_reference_header'] = dhdr
-            uids.append(d['uid'])
+            d["data_reference_header"] = dhdr
+            uids.append(d["uid"])
         payload = dict(data_header=dhdr, data_references=data_references)
-        params = self._post_factory(payload=payload,
-                                    signature='bulk_data_reference_insert')
+        params = self._post_factory(
+            payload=payload, signature="bulk_data_reference_insert"
+        )
         asutils.post_document(url=self.dref_url, contents=params)
         return uids
 
     def update_analysis_header(self, query, update):
-        """ Not yet implemented"""
-        raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')
+        """Not yet implemented"""
+        raise NotImplementedError(
+            "Not sure if this is a good idea. Convince me that it is"
+        )
 
     def update_analysis_tail(self, query, update):
         """Not yet implemented"""
-        raise NotImplementedError('Not sure if this is a good idea. Convince me that it is')
+        raise NotImplementedError(
+            "Not sure if this is a good idea. Convince me that it is"
+        )
 
     def find_analysis_header(self, **kwargs):
         """Given a set of parameters, return analysis header(s) that match the provided criteria"""
-        q = self._query_factory(kwargs, signature='find_analysis_header')
+        q = self._query_factory(kwargs, signature="find_analysis_header")
         return self.get(self.aheader_url, q)
 
     def find_analysis_tail(self, **kwargs):
         """Given a set of parameters, return analysis tail(s) that match the provided criteria"""
-        q = self._query_factory(kwargs, signature='find_analysis_tail')
+        q = self._query_factory(kwargs, signature="find_analysis_tail")
         return self.get(self.atail_url, q)
 
     def find_data_reference_header(self, **kwargs):
         """Given a set of parameters, return data reference header(s) that match the provided criteria"""
-        q = self._query_factory(kwargs, signature='find_data_reference_header')
+        q = self._query_factory(kwargs, signature="find_data_reference_header")
         return self.get(self.dref_header_url, q)
 
     def find_data_reference(self, **kwargs):
         """Given a set of parameters, return data reference(s) that match the provided criteria"""
-        q = self._query_factory(kwargs, signature='find_data_reference')
+        q = self._query_factory(kwargs, signature="find_data_reference")
         return self.get(self.dref_url, q)
 
     def insert(self, doc_type, **kwargs):
-        raise NotImplementedError('Coming soon')
+        raise NotImplementedError("Coming soon")
 
     def find(self, doc_type, query):
         """
@@ -330,5 +344,5 @@ class AnalysisClient:
         try:
             func = self._find_dict[doc_type]
         except KeyError:
-            raise KeyError('Not a valid document type for find')
+            raise KeyError("Not a valid document type for find")
         return func(**query)
