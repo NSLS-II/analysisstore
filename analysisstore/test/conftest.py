@@ -2,9 +2,7 @@ import time as ttime
 import uuid
 
 import pytest
-import requests
 import subprocess
-import os
 import sys
 import uuid
 from analysisstore.client.commands import AnalysisClient
@@ -19,6 +17,7 @@ testing_config = dict(
     mongo_uri="mongodb://localhost",
     mongo_host="localhost",
     mongo_port=27017,
+    testing=True,
 )
 
 
@@ -28,7 +27,7 @@ def astore_startup():
         [
             sys.executable,
             "-c",
-            f"from analysisstore.ignition import start_server; start_server(args={testing_config}, testing=True) ",
+            f"from analysisstore.ignition import start_server; start_server(config={testing_config}) ",
         ],
     )
     ttime.sleep(1.3)  # make sure the process is started
@@ -44,6 +43,6 @@ def astore_server():
 @pytest.fixture(scope="function")
 def astore_client():
     c = AnalysisClient(
-        host=testing_config["mongo_host"], port=testing_config["service_port"]
+        {"host": testing_config["mongo_host"], "port": testing_config["service_port"]}
     )
     return c
