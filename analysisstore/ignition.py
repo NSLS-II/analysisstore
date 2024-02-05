@@ -35,7 +35,7 @@ def start_server(config=None):
                 for k, v in load_configuration(
                     "analysisstore",
                     "ASST",
-                    ["mongo_uri", "timezone", "database", "service_port"],
+                    ["mongo_uri", "timezone", "database", "port"],
                     allow_missing=True,
                 ).items()
                 if v is not None
@@ -54,7 +54,7 @@ def start_server(config=None):
         )
         parser.add_argument(
             "--service-port",
-            dest="service_port",
+            dest="port",
             type=int,
             help="port listen to for clients",
         )
@@ -74,15 +74,17 @@ def start_server(config=None):
             config["mongo_uri"] = args.mongo_uri
         if args.timezone is not None:
             config["timezone"] = args.timezone
-        if args.service_port is not None:
-            config["service_port"] = args.service_port
-        config["testing"] = args.testing or None
-        config["log_file_prefix"] = args.log_file_prefix or None
+        if args.port is not None:
+            config["port"] = args.port
+        config["testing"] = args.testing
+        config["log_file_prefix"] = args.log_file_prefix
         if not config:
             raise KeyError(
                 "No configuration provided. Provide config file or command line args"
             )
-    tornado.options.parse_command_line({"log_file_prefix": config["log_file_prefix"]})
+    tornado.options.parse_command_line(
+        {"log_file_prefix": config.get("log_file_prefix", "")}
+    )
     cfg = dict(uri=config["mongo_uri"], database=config["database"])
     astore = AStore(cfg, testing=config["testing"])
     application = tornado.web.Application(
@@ -96,5 +98,5 @@ def start_server(config=None):
         astore=astore,
     )
     print("Starting Analysisstore service with configuration ", config)
-    application.listen(config["service_port"])
+    application.listen(config["port"])
     tornado.ioloop.IOLoop.current().start()

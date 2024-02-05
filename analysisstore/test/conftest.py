@@ -9,30 +9,29 @@ from analysisstore.client.commands import AnalysisClient
 import contextlib
 
 testing_config = dict(
-    host="localhost",
-    port=7601,
     timezone="US/Eastern",
-    service_port=7601,
+    port=7601,
     database="astoretest{0}".format(str(uuid.uuid4())),
     mongo_uri="mongodb://localhost",
-    mongo_host="localhost",
-    mongo_port=27017,
+    host="localhost",
     testing=True,
 )
 
 
 @contextlib.contextmanager
 def astore_startup():
-    ps = subprocess.Popen(
-        [
-            sys.executable,
-            "-c",
-            f"from analysisstore.ignition import start_server; start_server(config={testing_config}) ",
-        ],
-    )
-    ttime.sleep(1.3)  # make sure the process is started
-    yield ps
-
+    try:
+        ps = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                f"from analysisstore.ignition import start_server; start_server(config={testing_config}) ",
+            ],
+        )
+        ttime.sleep(1.3)  # make sure the process is started
+        yield ps
+    finally:
+        ps.terminate()
 
 @pytest.fixture(scope="session")
 def astore_server():
@@ -43,6 +42,6 @@ def astore_server():
 @pytest.fixture(scope="function")
 def astore_client():
     c = AnalysisClient(
-        {"host": testing_config["mongo_host"], "port": testing_config["service_port"]}
+        {"host": testing_config["host"], "port": testing_config["port"]}
     )
     return c
