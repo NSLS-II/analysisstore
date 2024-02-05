@@ -13,7 +13,7 @@ class AnalysisClient:
 
     def __init__(self, config):
         self.host = config["host"]
-        self.port = config["port"]
+        self.service_port = config["service_port"]
         self._insert_dict = {
             "analysis_header": self.insert_analysis_header,
             "analysis_tail": self.insert_analysis_tail,
@@ -31,7 +31,7 @@ class AnalysisClient:
     @property
     def _host_url(self):
         """URL to the tornado instance"""
-        return "http://{}:{}/".format(self.host, self.port)
+        return "http://{}:{}/".format(self.host, self.service_port)
 
     @property
     def aheader_url(self):

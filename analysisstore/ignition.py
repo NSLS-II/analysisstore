@@ -35,7 +35,7 @@ def start_server(config=None):
                 for k, v in load_configuration(
                     "analysisstore",
                     "ASST",
-                    ["mongo_uri", "timezone", "database", "port"],
+                    ["mongo_uri", "timezone", "database", "service_port"],
                     allow_missing=True,
                 ).items()
                 if v is not None
@@ -54,7 +54,7 @@ def start_server(config=None):
         )
         parser.add_argument(
             "--service-port",
-            dest="port",
+            dest="service_port",
             type=int,
             help="port listen to for clients",
         )
@@ -74,8 +74,8 @@ def start_server(config=None):
             config["mongo_uri"] = args.mongo_uri
         if args.timezone is not None:
             config["timezone"] = args.timezone
-        if args.port is not None:
-            config["port"] = args.port
+        if args.service_port is not None:
+            config["service_port"] = args.service_port
         config["testing"] = args.testing
         config["log_file_prefix"] = args.log_file_prefix
         if not config:
@@ -98,5 +98,5 @@ def start_server(config=None):
         astore=astore,
     )
     print("Starting Analysisstore service with configuration ", config)
-    application.listen(config["port"])
+    application.listen(config["service_port"])
     tornado.ioloop.IOLoop.current().start()

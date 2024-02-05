@@ -7,17 +7,17 @@ import uuid
 
 
 def test_conn_switch(astore_server, astore_client):
-    w_conf = dict(host="wrong_host", port=0)
+    w_conf = dict(host="wrong_host", service_port=0)
     tmp_conn = AnalysisClient(w_conf)
     tmp_conn.host == w_conf["host"]
-    tmp_conn.port == 0
+    tmp_conn.service_port == 0
     pytest.raises(requests.exceptions.ConnectionError, tmp_conn.connection_status)
 
 
 def test_urls(astore_client):
     """Catch potentially annoying and difficult to debug typos"""
     base_test_url = "http://{}:{}/".format(
-        testing_config["host"], testing_config["port"]
+        testing_config["host"], testing_config["service_port"]
     )
     astore_client._host_url == base_test_url
     astore_client.aheader_url == base_test_url + "analysis_header"

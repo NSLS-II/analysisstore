@@ -10,7 +10,7 @@ import contextlib
 
 testing_config = dict(
     timezone="US/Eastern",
-    port=7601,
+    service_port=7601,
     database="astoretest{0}".format(str(uuid.uuid4())),
     mongo_uri="mongodb://localhost",
     host="localhost",
@@ -42,6 +42,6 @@ def astore_server():
 @pytest.fixture(scope="function")
 def astore_client():
     c = AnalysisClient(
-        {"host": testing_config["host"], "port": testing_config["port"]}
+        {"host": testing_config["host"], "service_port": testing_config["service_port"]}
     )
     return c
