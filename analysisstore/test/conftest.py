@@ -18,6 +18,7 @@ testing_config = dict(
     mongo_host="localhost",
     mongo_port=27017,
     testing=True,
+    log_file_prefix="testing",
 )
 
 
