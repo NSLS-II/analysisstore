@@ -4,7 +4,7 @@ import tornado.web
 import sys
 import tornado.ioloop
 import tornado.options
-from server.astore import AStore
+from analysisstore.server.astore import AStore
 from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           AnalysisTailHandler,
                                           DataReferenceHeaderHandler,
