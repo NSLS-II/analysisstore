@@ -18,7 +18,7 @@ TESTING_CONFIG = dict(host='localhost', port=7601,
 
 def astore_setup():
     f = os.path.dirname(os.path.realpath(__file__))
-    proc = Popen(["python", "../../startup.py",
+    proc = Popen(["python", "../startup.py",
                                  "--mongo-uri",
                                  str(TESTING_CONFIG['mongouri']),
                                  "--database", TESTING_CONFIG['database'],

@@ -3,3 +3,4 @@ include README.md
 include requirements.txt
 include versioneer.py
 include analysisstore/_version.py
+include analysisstore/schemas/*

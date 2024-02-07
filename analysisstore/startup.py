@@ -1,4 +1,4 @@
-from analysisstore.ignition import start_server
+from ignition import start_server
 
 if __name__ == "__main__":
     # TODO: Make config file an optional arg to start server
