@@ -5,7 +5,7 @@ import six
 
 
 class AStore:
-    def __init__(self, config):
+    def __init__(self, config, testing=False):
         """Given a database configuration that consists of uri and
         database, instantiate an AStore object that handles the connections
         to the database.
@@ -15,36 +15,13 @@ class AStore:
         config: dict
             uri in string format, and database
         """
-        self.client = MongoClient(config['uri'])
-        self.database = self.client[config['database']]
-        self.database.analysis_header.create_index([('uid', DESCENDING)],
-                                                    unique=True,
-                                                   background=True)
-        self.database.analysis_header.create_index([('time', DESCENDING)],
-                                                   unique=False,
-                                                   background=True)
-        self.database.analysis_tail.create_index([('analysis_header',
-                                                   DESCENDING)],
-                                                 unique=True, background=True)
-        self.database.analysis_tail.create_index([('uid', DESCENDING)],
-                                                 unique=True, background=True)
-        self.database.analysis_tail.create_index([('time', DESCENDING)],
-                                                 unique=False, background=True)
-        self.database.data_reference_header.create_index([('analysis_header',
-                                                  DESCENDING)],
-                                                unique=True, background=False)
-        self.database.data_reference_header.create_index([('uid', DESCENDING)],
-                                                unique=True, background=False)
-        self.database.data_reference_header.create_index([('time', DESCENDING)],
-                                                unique=False)
-        self.database.data_reference.create_index([('time', DESCENDING),
-                                                  ('data_reference_header',
-                                                   DESCENDING)])
-        self.database.data_reference.create_index([('uid', DESCENDING)],
-                                                  unique=True)
-        self.database.data_reference.create_index([('data_reference_header',
-                                                    DESCENDING)],
-                                                  unique=False)
+        if not testing:
+            self.client = MongoClient(config["uri"])
+        else:
+            import mongomock
+
+            self.client = mongomock.MongoClient(config["uri"])
+        self.database = self.client[config["database"]]
 
     def doc_or_uid_to_uid(self, doc_or_uid):
         """Given Document or uid return the uid

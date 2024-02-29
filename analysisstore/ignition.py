@@ -4,7 +4,7 @@ import tornado.web
 import sys
 import tornado.ioloop
 import tornado.options
-from server.astore import AStore
+from .server.astore import AStore
 from  analysisstore.server.engine import (AnalysisHeaderHandler,
                                           AnalysisTailHandler,
                                           DataReferenceHeaderHandler,
@@ -46,6 +46,9 @@ def start_server(config=None):
                             help='port listen to for clients')
         parser.add_argument('--log-file_prefix', dest='log_file_prefix', type=str,
                             help='Log file name that tornado logs are dumped')
+        parser.add_argument(
+            "--testing", dest="testing", type=bool, help="Run server in test mode"
+        )
         args = parser.parse_args()
         if args.database is not None:
             config['database'] = args.database
@@ -55,11 +58,15 @@ def start_server(config=None):
             config['timezone'] = args.timezone
         if args.service_port is not None:
             config['service_port'] = args.service_port
+        config["testing"] = args.testing or None
+        config["log_file_prefix"] = args.log_file_prefix or None
         if not config:
-            raise KeyError('No configuration provided. Provide config file or command line args')
-    tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
+            raise KeyError(
+                "No configuration provided. Provide config file or command line args"
+            )
+    tornado.options.parse_command_line({'log_file_prefix': config["log_file_prefix"]})
     cfg = dict(uri=config['mongo_uri'], database=config['database'])
-    astore = AStore(cfg)
+    astore = AStore(cfg, testing=config["testing"])
     application = tornado.web.Application([(r'/analysis_header', AnalysisHeaderHandler),
                                            (r'/data_reference', DataReferenceHandler),
                                           (r'/data_reference_header',
