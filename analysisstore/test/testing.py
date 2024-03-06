@@ -19,11 +19,11 @@ TESTING_CONFIG = dict(host='localhost', port=7601,
 def astore_setup():
     f = os.path.dirname(os.path.realpath(__file__))
     proc = Popen(["python", "../startup.py",
-                                 "--mongo-uri",
+                                 "--mongo_uri",
                                  str(TESTING_CONFIG['mongouri']),
                                  "--database", TESTING_CONFIG['database'],
                                  "--timezone", TESTING_CONFIG['timezone'],
-                                 "--service-port",
+                                 "--service_port",
                                  str(TESTING_CONFIG['serviceport'])], cwd=f)
     ttime.sleep(1.3) # make sure the process is started
     return proc
