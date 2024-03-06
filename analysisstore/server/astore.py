@@ -1,7 +1,9 @@
 from pymongo import MongoClient, DESCENDING
+import pymongo
 import jsonschema
 import json
 import six
+from .utils import AnalysisstoreException
 
 
 class AStore:
@@ -16,7 +18,11 @@ class AStore:
             uri in string format, and database
         """
         if not testing:
-            self.client = MongoClient(config["uri"])
+            try:
+                self.client = MongoClient(config["uri"])
+                self.client.server_info()
+            except (pymongo.errors.ConnectionFailure, pymongo.errors.ServerSelectionTimeoutError):
+                raise AnalysisstoreException("Unable to connect to MongoDB server...")
         else:
             import mongomock
 
