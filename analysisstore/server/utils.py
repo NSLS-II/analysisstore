@@ -5,6 +5,9 @@ from pkg_resources import resource_filename as rs_fn
 import ujson
 import pymongo.cursor
 
+class AnalysisstoreException(Exception):
+    pass
+
 
 SCHEMA_PATH = 'schemas'
 SCHEMA_NAMES = {'analysis_header': 'analysis_header.json',
@@ -73,4 +76,4 @@ def return2client(handler, payload):
             except StopIteration:
                 break
         handler.write(']')
-    handler.finish()                                                                                                                                                                 
+    handler.finish()
