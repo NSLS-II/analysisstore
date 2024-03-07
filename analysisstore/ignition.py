@@ -37,12 +37,12 @@ def start_server(config=None):
         parser = argparse.ArgumentParser()
         parser.add_argument('--database', dest='database', type=str,
                             help='name of database to use')
-        parser.add_argument('--mongo-uri',
+        parser.add_argument('--mongo_uri',
                              dest='mongo_uri', type=str,
                             help='uri of Mongo DB')
         parser.add_argument('--timezone', dest='timezone', type=str,
                             help='Local timezone')
-        parser.add_argument('--service-port', dest='service_port', type=int,
+        parser.add_argument('--service_port', dest='service_port', type=int,
                             help='port listen to for clients')
         parser.add_argument('--log-file_prefix', dest='log_file_prefix', type=str,
                             help='Log file name that tornado logs are dumped')
