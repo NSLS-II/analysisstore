@@ -20,6 +20,7 @@ class AStore:
         if not testing:
             try:
                 self.client = MongoClient(config["uri"])
+                # Proactively check that connection to server is working.
                 self.client.server_info()
             except (pymongo.errors.ConnectionFailure, pymongo.errors.ServerSelectionTimeoutError):
                 raise AnalysisstoreException("Unable to connect to MongoDB server...")
