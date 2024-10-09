@@ -12,13 +12,10 @@ import versioneer
 import os
 import sys
 
-# NOTE: This file must remain Python 2 compatible for the foreseeable future,
-# to ensure that we error out properly for people with outdated setuptools
-# and/or pip.
-min_version = (3, 6)
+min_version = (3, 8)
 if sys.version_info < min_version:
     error = """
-mxtools does not support Python {0}.{1}.
+analysisstore does not support Python {0}.{1}.
 Python {2}.{3} and above is required. Check your Python version like so:
 
 python3 --version
@@ -61,5 +58,10 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Development Status :: 3 - Alpha",
         'Programming Language :: Python :: 3',
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
 )
