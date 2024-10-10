@@ -210,9 +210,11 @@ class AStore:
 
     def find_analysis_header(self,  **kwargs):
         """Given a set of parameters, return analysis header(s) that match the provided criteria"""
-        cur = self.database.analysis_header.find(kwargs).sort([('time', DESCENDING),
+        projection = kwargs.pop('_projection', {})
+        projection.update({"_id": False})
+        cur = self.database.analysis_header.find(kwargs, projection=projection).sort([('time', DESCENDING),
                                                                ('uid', DESCENDING)])
-        return self._clean_ids(cur)
+        return list(cur)
 
     def find_data_reference_header(self, **kwargs):
         """Given a set of kwargs in mongo query format, returns a list of data
